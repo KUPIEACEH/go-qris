@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  go:
+    container_name: ${DOCKERHUB_REPOSITORY}-go
+    image: ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPOSITORY}:${TAG_VERSION}
+    restart: always
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    ports:
+      - ${PORT}:1337
+    networks:
+      - network
+volumes:
+  volume:
+    name: ${DOCKERHUB_REPOSITORY}
+    driver: local
+networks:
+  network:
+    name: ${DOCKERHUB_REPOSITORY}
+    driver: bridge

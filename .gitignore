@@ -1,0 +1,6 @@
+.env
+vendor
+go-qris
+coverage.html
+coverage.out
+*temp.*
