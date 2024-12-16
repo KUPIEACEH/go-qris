@@ -60,4 +60,5 @@ func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
 
 	group.POST("/parse", qrisHandler.Parse)
 	group.POST("/to-dynamic", qrisHandler.ToDynamic)
+	group.POST("/validate", qrisHandler.Validate)
 }
