@@ -1,6 +1,6 @@
 # Go QRIS
 
-Go QRIS is a Go-based project designed to convert static QRIS codes into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but static QR codes have limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go QRIS simplifies the process of generating dynamic QR codes, improving payment flexibility for businesses and providing a seamless experience for customers.
+Go QRIS is a Go-based project designed to convert QRIS codes into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR codes have limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go QRIS simplifies the process of generating dynamic QR codes, improving payment flexibility for businesses and providing a seamless experience for customers.
 
 ## 📝 Directory Structure
 
@@ -23,7 +23,8 @@ Go QRIS is a Go-based project designed to convert static QRIS codes into dynamic
 ├── .gitignore      # Git ignore file
 ├── go.mod          # Go module configuration
 ├── go.sum          # Go dependencies
-└── LICENSE.md      # Project license
+├── LICENSE.md      # Project license
+└── README.md       # Project documentation
 ```
 
 ## 💌 Prerequisites
@@ -51,12 +52,12 @@ Go QRIS is a Go-based project designed to convert static QRIS codes into dynamic
     go mod tidy
     ```
 
-## 🎉 Running the Application
+## ⚙️ Running the Application
 
 1.  Run the application locally:
 
     ```bash
-    go run cmd/main.go
+    go run ./cmd/main.go
     ```
 
 2.  Run the application using Docker:
@@ -65,6 +66,9 @@ Go QRIS is a Go-based project designed to convert static QRIS codes into dynamic
     docker build -f ./deployments/Dockerfile -t go-qris .
     docker run --name go-qris -e APP_ENV=development -e QR_CODE_SIZE=200 -p 8080:1337 go-qris
     ```
+
+    Alternatively, open the following url in your browser:
+    [https://hub.docker.com/r/azisalvriyanto/go-qris](https://hub.docker.com/r/azisalvriyanto/go-qris)
 
 ## 🧪 Testing
 
@@ -86,17 +90,17 @@ Use the configuration files in the `deployments` folder to set up deployment in 
 
 ## 🔥 API Endpoints
 
-1.  **Extract Static QRIS**
+1.  **Parse QRIS**
 
-    - Endpoint: `POST /extract-static`
-    - URL: `https://api.qris.membasuh.com/extract-static`
+    - Endpoint: `POST /parse`
+    - URL: `https://api.qris.membasuh.com/parse`
     - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
 
       ```json
       {
-        "qr_string": "000201010211y0ur4w3soMEsT47icQr15STriN6"
+        "qr_string": "000201010211y0ur4w3soMEQr15STriN6"
       }
       ```
 
@@ -107,7 +111,8 @@ Use the configuration files in the `deployments` folder to set up deployment in 
       ```json
       {
         "success": true,
-        "message": "QRIS extracted successfully",
+        "message": "QRIS parsed successfully",
+        "errors": null,
         "data": {
           "version": {
             "tag": "00",
@@ -178,6 +183,21 @@ Use the configuration files in the `deployments` folder to set up deployment in 
             "content": "360",
             "data": "5303360"
           },
+          "payment_amount": {
+            "tag": "",
+            "content": "",
+            "data": ""
+          },
+          "payment_fee_category": {
+            "tag": "",
+            "content": "",
+            "data": ""
+          },
+          "payment_fee": {
+            "tag": "",
+            "content": "",
+            "data": ""
+          },
           "country_code": {
             "tag": "58",
             "content": "ID",
@@ -199,14 +219,14 @@ Use the configuration files in the `deployments` folder to set up deployment in 
             "data": "610555000"
           },
           "additional_information": {
-            "tag": "",
-            "content": "",
-            "data": ""
+            "tag": "62",
+            "content": "0703A01",
+            "data": "62070703A01"
           },
           "crc_code": {
             "tag": "63",
-            "content": "1FA2",
-            "data": "63041FA2"
+            "content": "9FB7",
+            "data": "63049FB7"
           }
         }
       }
@@ -217,22 +237,27 @@ Use the configuration files in the `deployments` folder to set up deployment in 
       ```json
       {
         "success": false,
-        "message": "not static QRIS content detected",
+        "message": "invalid QRIS format",
+        "errors": [
+          "Acquirer tag is missing",
+          "Country code tag is missing",
+          "CRC code tag is missing"
+        ],
         "data": null
       }
       ```
 
-2.  **Convert Static QRIS Into Dynamic**
+2.  **Convert QRIS Into Dynamic**
 
-    - Endpoint: `POST /static-to-dynamic`
-    - URL: `https://api.qris.membasuh.com/static-to-dynamic`
+    - Endpoint: `POST /to-dynamic`
+    - URL: `https://api.qris.membasuh.com/to-dynamic`
     - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
 
       ```json
       {
-        "qr_string": "000201010211y0ur4w3soMEsT47icQr15STriN6",
+        "qr_string": "000201010211y0ur4w3soMEQr15STriN6",
         "merchant_city": "Kota Yogyakarta", // optional
         "merchant_postal_code": "55000", // optional
         "payment_amount": 1337,
@@ -241,30 +266,70 @@ Use the configuration files in the `deployments` folder to set up deployment in 
       }
       ```
 
-      - Example Response:
+    - Example Response:
 
-        `Success`
+      `Success`
 
-        ```json
-        {
-          "success": true,
-          "message": "Dynamic QRIS converted successfully",
-          "data": {
-            "qr_string": "00020101021226630016COM.MEMBASUH.WWW0118936000091100004515021004893710810303UMI51440014ID.CO.QRIS.WWW0215ID20200340731930303UKE5204482953033605404133755020256036665802ID5912Sintas Store6015Kota Yogyakarta61055500063040377",
-            "qr_code": "data:image/png;base64,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"
-          }
+      ```json
+      {
+        "success": true,
+        "message": "Dynamic QRIS converted successfully",
+        "errors": null,
+        "data": {
+          "qr_string": "00020101021226630016COM.MEMBASUH.WWW0118936000091100004515021004893710810303UMI51440014ID.CO.QRIS.WWW0215ID20200340731930303UKE5204482953033605404133755020256036665802ID5912Sintas Store6015Kota Yogyakarta61055500062070703A016304F98B",
+          "qr_code": "data:image/png;base64,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"
         }
-        ```
+      }
+      ```
 
-        `Error`
+      `Error`
 
-        ```json
-        {
-          "success": false,
-          "message": "invalid extract acquirer for content 0016COM.MEMBASUH.WWW0118936000091100004515021004893710810303U",
-          "data": null
-        }
-        ```
+      ```json
+      {
+        "success": false,
+        "message": "invalid parse acquirer for content 0016COM.MEMBASUH.WWW0118936000091100004515021004893710810303",
+        "errors": null,
+        "data": null
+      }
+      ```
+
+3.  **Validate QRIS**
+
+    - Endpoint: `POST /validate`
+    - URL: `https://api.qris.membasuh.com/validate`
+    - Method: `POST`
+    - Content-Type: `application/json`
+    - Request Body:
+
+      ```json
+      {
+        "qr_string": "000201010211y0ur4w3soMEQr15STriN6"
+      }
+      ```
+
+    - Example Response:
+
+      `Success`
+
+      ```json
+      {
+        "success": true,
+        "message": "CRC16-CCITT code is valid",
+        "errors": null,
+        "data": null
+      }
+      ```
+
+      `Error`
+
+      ```json
+      {
+        "success": false,
+        "message": "invalid CRC16-CCITT code",
+        "errors": null,
+        "data": null
+      }
+      ```
 
 ## 👥 Contribution
 
