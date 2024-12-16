@@ -12,46 +12,52 @@ import (
 )
 
 func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
+	qrisTags := usecases.QRISTags{
+		VersionTag:               config.VersionTag,
+		CategoryTag:              config.CategoryTag,
+		AcquirerTag:              config.AcquirerTag,
+		AcquirerBankTransferTag:  config.AcquirerBankTransferTag,
+		SwitchingTag:             config.SwitchingTag,
+		MerchantCategoryCodeTag:  config.MerchantCategoryCodeTag,
+		CurrencyCodeTag:          config.CurrencyCodeTag,
+		PaymentAmountTag:         config.PaymentAmountTag,
+		PaymentFeeCategoryTag:    config.PaymentFeeCategoryTag,
+		PaymentFeeFixedTag:       config.PaymentFeeFixedTag,
+		PaymentFeePercentTag:     config.PaymentFeePercentTag,
+		CountryCodeTag:           config.CountryCodeTag,
+		MerchantNameTag:          config.MerchantNameTag,
+		MerchantCityTag:          config.MerchantCityTag,
+		MerchantPostalCodeTag:    config.MerchantPostalCodeTag,
+		AdditionalInformationTag: config.AdditionalInformationTag,
+		CRCCodeTag:               config.CRCCodeTag,
+	}
+	qrisCategoryContents := usecases.QRISCategoryContents{
+		Static:  config.CategoryStaticContent,
+		Dynamic: config.CategoryDynamicContent,
+	}
+	qrisPaymentFeeCategoryContents := usecases.QRISPaymentFeeCategoryContents{
+		Fixed:   config.PaymentFeeCategoryFixedContent,
+		Percent: config.PaymentFeeCategoryPercentContent,
+	}
+
 	dataUsecase := usecases.NewData()
 	acquirerUsecase := usecases.NewAcquirer(dataUsecase, config.AcquirerDetailSiteTag, config.AcquirerDetailMPANTag, config.AcquirerDetailTerminalIDTag, config.AcquirerDetailCategoryTag)
 	switchingUsecase := usecases.NewSwitching(dataUsecase, config.SwitchingDetailSiteTag, config.SwitchingDetailNMIDTag, config.SwitchingDetailCategoryTag)
+	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, qrisTags, qrisCategoryContents)
 	crc16CCITTUsecase := usecases.NewCRC16CCITT()
 	qrisUsecase := usecases.NewQRIS(
-		acquirerUsecase,
-		switchingUsecase,
 		dataUsecase,
+		fieldUsecase,
 		crc16CCITTUsecase,
-		usecases.QRISTags{
-			VersionTag:               config.VersionTag,
-			CategoryTag:              config.CategoryTag,
-			AcquirerTag:              config.AcquirerTag,
-			SwitchingTag:             config.SwitchingTag,
-			MerchantCategoryCodeTag:  config.MerchantCategoryCodeTag,
-			CurrencyCodeTag:          config.CurrencyCodeTag,
-			PaymentAmountTag:         config.PaymentAmountTag,
-			PaymentFeeCategoryTag:    config.PaymentFeeCategoryTag,
-			CountryCodeTag:           config.CountryCodeTag,
-			MerchantNameTag:          config.MerchantNameTag,
-			MerchantCityTag:          config.MerchantCityTag,
-			MerchantPostalCodeTag:    config.MerchantPostalCodeTag,
-			AdditionalInformationTag: config.AdditionalInformationTag,
-			CRCCodeTag:               config.CRCCodeTag,
-		},
-		usecases.QRISCategoryContents{
-			StaticContent:  config.CategoryStaticContent,
-			DynamicContent: config.CategoryDynamicContent,
-		},
-		usecases.QRISDynamicPaymentFee{
-			CategoryFixedContent:   config.PaymentFeeCategoryFixedContent,
-			CategoryPercentContent: config.PaymentFeeCategoryPercentContent,
-			FixedTag:               config.PaymentFeeFixedTag,
-			PercentTag:             config.PaymentFeePercentTag,
-		},
+		qrisTags,
+		qrisCategoryContents,
+		qrisPaymentFeeCategoryContents,
 	)
 	qrCodeUtil := utils.NewQRCode()
-	qrisController := controllers.NewQRIS(qrisUsecase, qrCodeUtil, env.QRCodeSize)
+	inputUtil := utils.NewInput()
+	qrisController := controllers.NewQRIS(inputUtil, qrCodeUtil, qrisUsecase, env.QRCodeSize)
 	qrisHandler := handlers.NewQRIS(qrisController)
 
-	group.POST("/extract-static", qrisHandler.ExtractStatic)
-	group.POST("/static-to-dynamic", qrisHandler.StaticToDynamic)
+	group.POST("/parse", qrisHandler.Parse)
+	group.POST("/to-dynamic", qrisHandler.ToDynamic)
 }

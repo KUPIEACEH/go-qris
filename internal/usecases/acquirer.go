@@ -13,7 +13,7 @@ type Acquirer struct {
 }
 
 type AcquirerInterface interface {
-	Extract(content string) (*entities.AcquirerDetail, error)
+	Parse(content string) (*entities.AcquirerDetail, error)
 }
 
 func NewAcquirer(dataUsecase DataInterface, siteTag string, mpanTag string, terminalIDTag string, categoryTag string) AcquirerInterface {
@@ -26,26 +26,26 @@ func NewAcquirer(dataUsecase DataInterface, siteTag string, mpanTag string, term
 	}
 }
 
-func (uc *Acquirer) Extract(content string) (*entities.AcquirerDetail, error) {
+func (uc *Acquirer) Parse(content string) (*entities.AcquirerDetail, error) {
 	var detail entities.AcquirerDetail
 	for len(content) > 0 {
-		extractData, err := uc.dataUsecase.Extract(content)
+		data, err := uc.dataUsecase.Parse(content)
 		if err != nil {
 			return nil, err
 		}
 
-		switch extractData.Tag {
+		switch data.Tag {
 		case uc.siteTag:
-			detail.Site = *extractData
+			detail.Site = *data
 		case uc.mpanTag:
-			detail.MPAN = *extractData
+			detail.MPAN = *data
 		case uc.terminalIDTag:
-			detail.TerminalID = *extractData
+			detail.TerminalID = *data
 		case uc.categoryTag:
-			detail.Category = *extractData
+			detail.Category = *data
 		}
 
-		content = content[4+len(extractData.Content):]
+		content = content[4+len(data.Content):]
 	}
 
 	return &detail, nil

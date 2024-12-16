@@ -12,7 +12,7 @@ type Switching struct {
 }
 
 type SwitchingInterface interface {
-	Extract(content string) (*entities.SwitchingDetail, error)
+	Parse(content string) (*entities.SwitchingDetail, error)
 }
 
 func NewSwitching(dataUsecase DataInterface, siteTag string, nmidTag string, categoryTag string) SwitchingInterface {
@@ -24,24 +24,24 @@ func NewSwitching(dataUsecase DataInterface, siteTag string, nmidTag string, cat
 	}
 }
 
-func (uc *Switching) Extract(content string) (*entities.SwitchingDetail, error) {
+func (uc *Switching) Parse(content string) (*entities.SwitchingDetail, error) {
 	var detail entities.SwitchingDetail
 	for len(content) > 0 {
-		extractData, err := uc.dataUsecase.Extract(content)
+		data, err := uc.dataUsecase.Parse(content)
 		if err != nil {
 			return nil, err
 		}
 
-		switch extractData.Tag {
+		switch data.Tag {
 		case uc.siteTag:
-			detail.Site = *extractData
+			detail.Site = *data
 		case uc.nmidTag:
-			detail.NMID = *extractData
+			detail.NMID = *data
 		case uc.categoryTag:
-			detail.Category = *extractData
+			detail.Category = *data
 		}
 
-		content = content[4+len(extractData.Content):]
+		content = content[4+len(data.Content):]
 	}
 
 	return &detail, nil

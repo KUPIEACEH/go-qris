@@ -8,7 +8,7 @@ type Switching struct {
 }
 
 type SwitchingDetail struct {
-	Site     ExtractData `json:"site"`
-	NMID     ExtractData `json:"nmid"`
-	Category ExtractData `json:"category"`
+	Site     Data `json:"site"`
+	NMID     Data `json:"nmid"`
+	Category Data `json:"category"`
 }

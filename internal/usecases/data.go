@@ -11,15 +11,15 @@ type Data struct {
 }
 
 type DataInterface interface {
-	Extract(codeString string) (*entities.ExtractData, error)
-	ModifyContent(extractData entities.ExtractData, content string) entities.ExtractData
+	Parse(codeString string) (*entities.Data, error)
+	ModifyContent(data *entities.Data, content string) *entities.Data
 }
 
 func NewData() DataInterface {
 	return &Data{}
 }
 
-func (u *Data) Extract(codeString string) (*entities.ExtractData, error) {
+func (u *Data) Parse(codeString string) (*entities.Data, error) {
 	if len(codeString) < 5 {
 		return nil, fmt.Errorf("invalid format code")
 	}
@@ -36,20 +36,22 @@ func (u *Data) Extract(codeString string) (*entities.ExtractData, error) {
 	}
 
 	content := codeString[4 : 4+length]
-	return &entities.ExtractData{
+	return &entities.Data{
 		Tag:     tag,
 		Content: content,
 		Data:    tag + lengthCode + content,
 	}, nil
 }
 
-func (uc *Data) ModifyContent(extractData entities.ExtractData, content string) entities.ExtractData {
+func (uc *Data) ModifyContent(data *entities.Data, content string) *entities.Data {
 	length := len(content)
-	data := extractData.Tag + fmt.Sprintf("%02d", length) + content
+	if length < 1 {
+		return &entities.Data{}
+	}
 
-	return entities.ExtractData{
-		Tag:     extractData.Tag,
+	return &entities.Data{
+		Tag:     data.Tag,
 		Content: content,
-		Data:    data,
+		Data:    data.Tag + fmt.Sprintf("%02d", length) + content,
 	}
 }

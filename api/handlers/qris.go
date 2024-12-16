@@ -13,17 +13,17 @@ type QRIS struct {
 }
 
 type QRISInterface interface {
-	ExtractStatic(c *gin.Context)
-	StaticToDynamic(c *gin.Context)
+	Parse(c *gin.Context)
+	ToDynamic(c *gin.Context)
+	Validate(c *gin.Context)
 }
 
-type ExtractRequest struct {
+type ParseRequest struct {
 	QRString string `json:"qr_string"`
 }
 
 type ConverterRequest struct {
 	QRString           string `json:"qr_string"`
-	MerchantName       string `json:"merchant_name"`
 	MerchantCity       string `json:"merchant_city"`
 	MerchantPostalCode string `json:"merchant_postal_code"`
 	PaymentAmount      uint32 `json:"payment_amount"`
@@ -37,23 +37,25 @@ func NewQRIS(qrisController controllers.QRISInterface) QRISInterface {
 	}
 }
 
-func (h *QRIS) ExtractStatic(c *gin.Context) {
-	var req ExtractRequest
+func (h *QRIS) Parse(c *gin.Context) {
+	var req ParseRequest
 
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
 			Message: err.Error(),
+			Errors:  nil,
 			Data:    nil,
 		})
 		return
 	}
 
-	data, err := h.qrisController.ExtractStatic(req.QRString)
+	data, err, errs := h.qrisController.Parse(req.QRString)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
 			Message: err.Error(),
+			Errors:  errs,
 			Data:    nil,
 		})
 		return
@@ -61,28 +63,31 @@ func (h *QRIS) ExtractStatic(c *gin.Context) {
 
 	c.JSON(http.StatusOK, Response{
 		Success: true,
-		Message: "QRIS extracted successfully",
+		Message: "QRIS parsed successfully",
+		Errors:  nil,
 		Data:    data,
 	})
 }
 
-func (h *QRIS) StaticToDynamic(c *gin.Context) {
+func (h *QRIS) ToDynamic(c *gin.Context) {
 	var req ConverterRequest
 
 	if err := c.BindJSON(&req); err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
 			Message: err.Error(),
+			Errors:  nil,
 			Data:    nil,
 		})
 		return
 	}
 
-	qrString, qrCode, err := h.qrisController.StaticToDynamic(req.QRString, req.MerchantName, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee)
+	qrString, qrCode, err, errs := h.qrisController.ToDynamic(req.QRString, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
 			Message: err.Error(),
+			Errors:  errs,
 			Data:    nil,
 		})
 		return
@@ -91,6 +96,7 @@ func (h *QRIS) StaticToDynamic(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Success: true,
 		Message: "Dynamic QRIS converted successfully",
+		Errors:  nil,
 		Data: struct {
 			QRString string `json:"qr_string"`
 			QRCode   string `json:"qr_code"`
@@ -98,5 +104,37 @@ func (h *QRIS) StaticToDynamic(c *gin.Context) {
 			QRString: qrString,
 			QRCode:   qrCode,
 		},
+	})
+}
+
+func (h *QRIS) Validate(c *gin.Context) {
+	var req ParseRequest
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusInternalServerError, Response{
+			Success: false,
+			Message: err.Error(),
+			Errors:  nil,
+			Data:    nil,
+		})
+		return
+	}
+
+	err, errs := h.qrisController.Validate(req.QRString)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Response{
+			Success: false,
+			Message: err.Error(),
+			Errors:  errs,
+			Data:    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Success: true,
+		Message: "CRC16-CCITT code is valid",
+		Errors:  nil,
+		Data:    nil,
 	})
 }

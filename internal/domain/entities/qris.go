@@ -1,6 +1,6 @@
 package entities
 
-type QRISDynamic struct {
+type QRIS struct {
 	Version               Data      `json:"version"`
 	Category              Data      `json:"category"`
 	Acquirer              Acquirer  `json:"acquirer"`

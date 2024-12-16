@@ -13,6 +13,7 @@ var (
 	testVersionTag                       = "00"
 	testCategoryTag                      = "01"
 	testAcquirerTag                      = "26"
+	testAcquirerBankTransferTag          = "40"
 	testSwitchingTag                     = "51"
 	testMerchantCategoryCodeTag          = "52"
 	testCurrencyCodeTag                  = "53"
@@ -39,22 +40,22 @@ var (
 	testPaymentFeeCategoryPercentContent = "03"
 
 	testAcquirerDetail = entities.AcquirerDetail{
-		Site: entities.ExtractData{
+		Site: entities.Data{
 			Tag:     testAcquirerDetailSiteTag,
 			Content: "COM.MEMBASUH.WWW",
 			Data:    testAcquirerDetailSiteTag + "16COM.MEMBASUH.WWW",
 		},
-		MPAN: entities.ExtractData{
+		MPAN: entities.Data{
 			Tag:     testAcquirerDetailMPANTag,
 			Content: "936009153022591481",
 			Data:    testAcquirerDetailMPANTag + "18936009153022591481",
 		},
-		TerminalID: entities.ExtractData{
+		TerminalID: entities.Data{
 			Tag:     testAcquirerDetailTerminalIDTag,
 			Content: "022591481",
 			Data:    testAcquirerDetailTerminalIDTag + "09022591481",
 		},
-		Category: entities.ExtractData{
+		Category: entities.Data{
 			Tag:     testAcquirerDetailCategoryTag,
 			Content: "UMI",
 			Data:    testAcquirerDetailCategoryTag + "03UMI",
@@ -62,33 +63,33 @@ var (
 	}
 
 	testSwitchingDetail = entities.SwitchingDetail{
-		Site: entities.ExtractData{
+		Site: entities.Data{
 			Tag:     testSwitchingDetailSiteTag,
 			Content: "ID.CO.QRIS.WWW",
 			Data:    testSwitchingDetailSiteTag + "14ID.CO.QRIS.WWW",
 		},
-		NMID: entities.ExtractData{
+		NMID: entities.Data{
 			Tag:     testSwitchingDetailNMIDTag,
 			Content: "ID1020017611473",
 			Data:    testSwitchingDetailNMIDTag + "15ID1020017611473",
 		},
-		Category: entities.ExtractData{
+		Category: entities.Data{
 			Tag:     testSwitchingDetailCategoryTag,
 			Content: "UMI",
 			Data:    testSwitchingDetailCategoryTag + "03UMI",
 		},
 	}
 
-	testQRISStatic = entities.QRISStatic{
-		Version: entities.ExtractData{
+	testQRIS = entities.QRIS{
+		Version: entities.Data{
 			Tag:     testVersionTag,
 			Content: "01",
 			Data:    testVersionTag + "0201",
 		},
-		Category: entities.ExtractData{
+		Category: entities.Data{
 			Tag:     testCategoryTag,
-			Content: "11",
-			Data:    testCategoryTag + "0211",
+			Content: testCategoryStaticContent,
+			Data:    testCategoryTag + "02" + testCategoryStaticContent,
 		},
 		Acquirer: entities.Acquirer{
 			Tag:     testAcquirerTag,
@@ -102,101 +103,97 @@ var (
 			Data:    testSwitchingTag + "44" + testSwitchingDetail.Site.Data + testSwitchingDetail.NMID.Data + testSwitchingDetail.Category.Data,
 			Detail:  testSwitchingDetail,
 		},
-		MerchantCategoryCode: entities.ExtractData{
+		MerchantCategoryCode: entities.Data{
 			Tag:     testMerchantCategoryCodeTag,
 			Content: "4829",
 			Data:    testMerchantCategoryCodeTag + "044829",
 		},
-		CurrencyCode: entities.ExtractData{
+		CurrencyCode: entities.Data{
 			Tag:     testCurrencyCodeTag,
 			Content: "360",
 			Data:    testCurrencyCodeTag + "03360",
 		},
-		CountryCode: entities.ExtractData{
+		PaymentAmount: entities.Data{
+			Tag:     testPaymentAmountTag,
+			Content: "1337",
+			Data:    testPaymentAmountTag + "041337",
+		},
+		PaymentFeeCategory: entities.Data{
+			Tag:     testPaymentFeeCategoryTag,
+			Content: testPaymentFeeCategoryFixedContent,
+			Data:    testPaymentFeeCategoryTag + "02" + testPaymentFeeCategoryFixedContent,
+		},
+		PaymentFee: entities.Data{
+			Tag:     testPaymentFeeFixedTag,
+			Content: "666",
+			Data:    testPaymentFeeFixedTag + "03666",
+		},
+		CountryCode: entities.Data{
 			Tag:     testCountryCodeTag,
 			Content: "ID",
 			Data:    testCountryCodeTag + "02ID",
 		},
-		MerchantName: entities.ExtractData{
+		MerchantName: entities.Data{
 			Tag:     testMerchantNameTag,
 			Content: "Sintas Store",
 			Data:    testMerchantNameTag + "12Sintas Store",
 		},
-		MerchantCity: entities.ExtractData{
+		MerchantCity: entities.Data{
 			Tag:     testMerchantCityTag,
 			Content: "Kota Yogyakarta",
 			Data:    testMerchantCityTag + "15Kota Yogyakarta",
 		},
-		MerchantPostalCode: entities.ExtractData{
+		MerchantPostalCode: entities.Data{
 			Tag:     testMerchantPostalCodeTag,
 			Content: "55000",
 			Data:    testMerchantPostalCodeTag + "0555000",
 		},
-		AdditionalInformation: entities.ExtractData{
+		AdditionalInformation: entities.Data{
 			Tag:     testAdditionalInformationTag,
-			Content: "01",
-			Data:    testAdditionalInformationTag + "0201",
+			Content: "0703A01",
+			Data:    testAdditionalInformationTag + "070703A01",
 		},
-		CRCCode: entities.ExtractData{
+		CRCCode: entities.Data{
 			Tag:     testCRCCodeTag,
 			Content: "1FA2",
 			Data:    testCRCCodeTag + "041FA2",
 		},
 	}
 
-	testQRISStaticString = testQRISStatic.Version.Data +
-		testQRISStatic.Category.Data +
-		testQRISStatic.Acquirer.Data +
-		testQRISStatic.Switching.Data +
-		testQRISStatic.MerchantCategoryCode.Data +
-		testQRISStatic.CurrencyCode.Data +
-		testQRISStatic.CountryCode.Data +
-		testQRISStatic.MerchantName.Data +
-		testQRISStatic.MerchantCity.Data +
-		testQRISStatic.MerchantPostalCode.Data +
-		testQRISStatic.AdditionalInformation.Data +
-		testQRISStatic.CRCCode.Data
+	testQRISString = testQRIS.Version.Data +
+		testQRIS.Category.Data +
+		testQRIS.Acquirer.Data +
+		testQRIS.Switching.Data +
+		testQRIS.MerchantCategoryCode.Data +
+		testQRIS.CurrencyCode.Data +
+		testQRIS.CountryCode.Data +
+		testQRIS.MerchantName.Data +
+		testQRIS.MerchantCity.Data +
+		testQRIS.MerchantPostalCode.Data +
+		testQRIS.AdditionalInformation.Data +
+		testQRIS.CRCCode.Data
 )
 
 type mockAcquirerUsecase struct {
-	ExtractFunc func(content string) (*entities.AcquirerDetail, error)
+	ParseFunc func(content string) (*entities.AcquirerDetail, error)
 }
 
-func (m *mockAcquirerUsecase) Extract(content string) (*entities.AcquirerDetail, error) {
-	if m.ExtractFunc != nil {
-		return m.ExtractFunc(content)
+func (m *mockAcquirerUsecase) Parse(content string) (*entities.AcquirerDetail, error) {
+	if m.ParseFunc != nil {
+		return m.ParseFunc(content)
 	}
 	return nil, nil
 }
 
 type mockSwitchingUsecase struct {
-	ExtractFunc func(content string) (*entities.SwitchingDetail, error)
+	ParseFunc func(content string) (*entities.SwitchingDetail, error)
 }
 
-func (m *mockSwitchingUsecase) Extract(content string) (*entities.SwitchingDetail, error) {
-	if m.ExtractFunc != nil {
-		return m.ExtractFunc(content)
+func (m *mockSwitchingUsecase) Parse(content string) (*entities.SwitchingDetail, error) {
+	if m.ParseFunc != nil {
+		return m.ParseFunc(content)
 	}
 	return nil, nil
-}
-
-type mockDataUsecase struct {
-	ExtractFunc       func(codeString string) (*entities.ExtractData, error)
-	ModifyContentFunc func(extractData entities.ExtractData, content string) entities.ExtractData
-}
-
-func (m *mockDataUsecase) Extract(codeString string) (*entities.ExtractData, error) {
-	if m.ExtractFunc != nil {
-		return m.ExtractFunc(codeString)
-	}
-	return nil, nil
-}
-
-func (m *mockDataUsecase) ModifyContent(extractData entities.ExtractData, content string) entities.ExtractData {
-	if m.ModifyContentFunc != nil {
-		return m.ModifyContentFunc(extractData, content)
-	}
-	return entities.ExtractData{}
 }
 
 type mockCRC16CCITTUsecase struct {
@@ -208,4 +205,43 @@ func (m *mockCRC16CCITTUsecase) GenerateCode(code string) string {
 		return m.GenerateCodeFunc(code)
 	}
 	return ""
+}
+
+type mockDataUsecase struct {
+	ParseFunc         func(codeString string) (*entities.Data, error)
+	ModifyContentFunc func(data *entities.Data, content string) *entities.Data
+}
+
+func (m *mockDataUsecase) Parse(codeString string) (*entities.Data, error) {
+	if m.ParseFunc != nil {
+		return m.ParseFunc(codeString)
+	}
+	return nil, nil
+}
+
+func (m *mockDataUsecase) ModifyContent(data *entities.Data, content string) *entities.Data {
+	if m.ModifyContentFunc != nil {
+		return m.ModifyContentFunc(data, content)
+	}
+	return &entities.Data{}
+}
+
+type mockFieldUsecase struct {
+	AssignFunc   func(qris *entities.QRIS, data *entities.Data) error
+	ValidateFunc func(qris *entities.QRIS, errs *[]string)
+}
+
+func (m *mockFieldUsecase) Assign(qris *entities.QRIS, data *entities.Data) error {
+	if m.AssignFunc != nil {
+		return m.AssignFunc(qris, data)
+	}
+	return nil
+}
+
+func (m *mockFieldUsecase) Validate(qris *entities.QRIS, errs *[]string) {
+	if m.ValidateFunc != nil {
+		m.ValidateFunc(qris, errs)
+		return
+	}
+	return
 }

@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -39,7 +38,7 @@ func TestNewData(t *testing.T) {
 		})
 	}
 }
-func TestDataExtract(t *testing.T) {
+func TestDataParse(t *testing.T) {
 	type args struct {
 		codeString string
 	}
@@ -48,7 +47,7 @@ func TestDataExtract(t *testing.T) {
 		name      string
 		fields    Data
 		args      args
-		want      *entities.ExtractData
+		want      *entities.Data
 		wantError error
 	}{
 		{
@@ -58,33 +57,33 @@ func TestDataExtract(t *testing.T) {
 				codeString: "1102",
 			},
 			want:      nil,
-			wantError: errors.New("invalid format code"),
+			wantError: fmt.Errorf("invalid format code"),
 		},
 		{
 			name:   "Error: Content Length Format",
 			fields: Data{},
 			args: args{
-				codeString: testQRISStatic.Version.Tag + "X211",
+				codeString: testQRIS.Version.Tag + "X211",
 			},
 			want:      nil,
-			wantError: fmt.Errorf("invalid length format for tag %s: strconv.Atoi: parsing \"X2\": invalid syntax", testQRISStatic.Version.Tag),
+			wantError: fmt.Errorf("invalid length format for tag %s: strconv.Atoi: parsing \"X2\": invalid syntax", testQRIS.Version.Tag),
 		},
 		{
 			name:   "Error: Content Length Not Match With Field",
 			fields: Data{},
 			args: args{
-				codeString: testQRISStatic.Version.Tag + "021",
+				codeString: testQRIS.Version.Tag + "021",
 			},
 			want:      nil,
-			wantError: fmt.Errorf("invalid length for tag %s", testQRISStatic.Version.Tag),
+			wantError: fmt.Errorf("invalid length for tag %s", testQRIS.Version.Tag),
 		},
 		{
 			name:   "Success",
 			fields: Data{},
 			args: args{
-				codeString: testQRISStatic.Version.Data,
+				codeString: testQRIS.Version.Data,
 			},
-			want:      &testQRISStatic.Version,
+			want:      &testQRIS.Version,
 			wantError: nil,
 		},
 	}
@@ -93,12 +92,12 @@ func TestDataExtract(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			uc := test.fields
 
-			got, err := uc.Extract(test.args.codeString)
+			got, err := uc.Parse(test.args.codeString)
 			if err != nil && err.Error() != test.wantError.Error() {
-				t.Errorf(expectedErrorButGotMessage, "Extract()", test.wantError, err)
+				t.Errorf(expectedErrorButGotMessage, "Parse()", test.wantError, err)
 			}
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "Extract()", test.want, got)
+				t.Errorf(expectedButGotMessage, "Parse()", test.want, got)
 			}
 		})
 	}
@@ -106,38 +105,38 @@ func TestDataExtract(t *testing.T) {
 
 func TestDataModifyContent(t *testing.T) {
 	type args struct {
-		extractData entities.ExtractData
-		content     string
+		data    *entities.Data
+		content string
 	}
 
 	tests := []struct {
 		name string
 		args args
-		want entities.ExtractData
+		want *entities.Data
 	}{
 		{
-			name: "No Content",
+			name: "Success: No Content",
 			args: args{
-				extractData: entities.ExtractData{},
-				content:     "",
+				data:    &entities.Data{},
+				content: "",
 			},
-			want: entities.ExtractData{
+			want: &entities.Data{
 				Tag:     "",
 				Content: "",
-				Data:    "00",
+				Data:    "",
 			},
 		},
 		{
-			name: "With Content",
+			name: "Success: With Content",
 			args: args{
-				extractData: entities.ExtractData{
+				data: &entities.Data{
 					Tag:     "13",
 					Content: "Old Content",
 					Data:    "1311Old Content",
 				},
 				content: "New Content",
 			},
-			want: entities.ExtractData{
+			want: &entities.Data{
 				Tag:     "13",
 				Content: "New Content",
 				Data:    "1311New Content",
@@ -148,7 +147,7 @@ func TestDataModifyContent(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &Data{}
-			got := uc.ModifyContent(test.args.extractData, test.args.content)
+			got := uc.ModifyContent(test.args.data, test.args.content)
 			if !reflect.DeepEqual(got, test.want) {
 				t.Errorf(expectedButGotMessage, "ModifyContent()", test.want, got)
 			}

@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,7 +15,7 @@ func TestNewAcquirer(t *testing.T) {
 		want   AcquirerInterface
 	}{
 		{
-			name: "Success",
+			name: "Success: No Field",
 			fields: Acquirer{
 				dataUsecase:   &Data{},
 				siteTag:       "",
@@ -33,7 +32,7 @@ func TestNewAcquirer(t *testing.T) {
 			},
 		},
 		{
-			name: "Success With Fields",
+			name: "Success: With Field",
 			fields: Acquirer{
 				dataUsecase:   &Data{},
 				siteTag:       testAcquirerDetailSiteTag,
@@ -71,7 +70,7 @@ func TestNewAcquirer(t *testing.T) {
 	}
 }
 
-func TestAcquirerExtract(t *testing.T) {
+func TestAcquirerParse(t *testing.T) {
 	type args struct {
 		content string
 	}
@@ -87,7 +86,7 @@ func TestAcquirerExtract(t *testing.T) {
 			name: "Error: Parse",
 			fields: Acquirer{
 				dataUsecase: &mockDataUsecase{
-					ExtractFunc: func(codeString string) (*entities.ExtractData, error) {
+					ParseFunc: func(codeString string) (*entities.Data, error) {
 						return nil, fmt.Errorf("invalid format code")
 					},
 				},
@@ -97,25 +96,25 @@ func TestAcquirerExtract(t *testing.T) {
 				categoryTag:   testAcquirerDetailCategoryTag,
 			},
 			args: args{
-				content: testQRISStatic.Acquirer.Content,
+				content: testQRIS.Acquirer.Content,
 			},
 			want:      nil,
-			wantError: errors.New("invalid format code"),
+			wantError: fmt.Errorf("invalid format code"),
 		},
 		{
 			name: "Success",
 			fields: Acquirer{
 				dataUsecase: &mockDataUsecase{
-					ExtractFunc: func(codeString string) (*entities.ExtractData, error) {
+					ParseFunc: func(codeString string) (*entities.Data, error) {
 						switch codeString[:2] {
-						case testQRISStatic.Acquirer.Detail.Site.Tag:
-							return &testQRISStatic.Acquirer.Detail.Site, nil
-						case testQRISStatic.Acquirer.Detail.MPAN.Tag:
-							return &testQRISStatic.Acquirer.Detail.MPAN, nil
-						case testQRISStatic.Acquirer.Detail.TerminalID.Tag:
-							return &testQRISStatic.Acquirer.Detail.TerminalID, nil
-						case testQRISStatic.Acquirer.Detail.Category.Tag:
-							return &testQRISStatic.Acquirer.Detail.Category, nil
+						case testQRIS.Acquirer.Detail.Site.Tag:
+							return &testQRIS.Acquirer.Detail.Site, nil
+						case testQRIS.Acquirer.Detail.MPAN.Tag:
+							return &testQRIS.Acquirer.Detail.MPAN, nil
+						case testQRIS.Acquirer.Detail.TerminalID.Tag:
+							return &testQRIS.Acquirer.Detail.TerminalID, nil
+						case testQRIS.Acquirer.Detail.Category.Tag:
+							return &testQRIS.Acquirer.Detail.Category, nil
 						default:
 							return nil, nil
 						}
@@ -127,9 +126,9 @@ func TestAcquirerExtract(t *testing.T) {
 				categoryTag:   testAcquirerDetailCategoryTag,
 			},
 			args: args{
-				content: testQRISStatic.Acquirer.Content,
+				content: testQRIS.Acquirer.Content,
 			},
-			want:      &testQRISStatic.Acquirer.Detail,
+			want:      &testQRIS.Acquirer.Detail,
 			wantError: nil,
 		},
 	}
@@ -144,12 +143,12 @@ func TestAcquirerExtract(t *testing.T) {
 				categoryTag:   test.fields.categoryTag,
 			}
 
-			got, err := uc.Extract(test.args.content)
+			got, err := uc.Parse(test.args.content)
 			if err != nil && err.Error() != test.wantError.Error() {
-				t.Errorf(expectedErrorButGotMessage, "Extract()", test.wantError, err)
+				t.Errorf(expectedErrorButGotMessage, "Parse()", test.wantError, err)
 			}
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "Extract()", test.want, got)
+				t.Errorf(expectedButGotMessage, "Parse()", test.want, got)
 			}
 		})
 	}

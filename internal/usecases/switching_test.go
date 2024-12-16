@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,7 +15,7 @@ func TestNewSwitching(t *testing.T) {
 		want   SwitchingInterface
 	}{
 		{
-			name: "Success",
+			name: "Success: No Field",
 			fields: Switching{
 				dataUsecase: &Data{},
 				siteTag:     "",
@@ -31,7 +30,7 @@ func TestNewSwitching(t *testing.T) {
 			},
 		},
 		{
-			name: "Success With Fields",
+			name: "Success: With Field",
 			fields: Switching{
 				dataUsecase: &Data{},
 				siteTag:     testSwitchingDetailSiteTag,
@@ -67,7 +66,7 @@ func TestNewSwitching(t *testing.T) {
 	}
 }
 
-func TestSwitchingExtract(t *testing.T) {
+func TestSwitchingParse(t *testing.T) {
 	type args struct {
 		content string
 	}
@@ -83,7 +82,7 @@ func TestSwitchingExtract(t *testing.T) {
 			name: "Error: Parse",
 			fields: Switching{
 				dataUsecase: &mockDataUsecase{
-					ExtractFunc: func(codeString string) (*entities.ExtractData, error) {
+					ParseFunc: func(codeString string) (*entities.Data, error) {
 						return nil, fmt.Errorf("invalid format code")
 					},
 				},
@@ -92,23 +91,23 @@ func TestSwitchingExtract(t *testing.T) {
 				categoryTag: testSwitchingDetailCategoryTag,
 			},
 			args: args{
-				content: testQRISStatic.Switching.Content,
+				content: testQRIS.Switching.Content,
 			},
 			want:      nil,
-			wantError: errors.New("invalid format code"),
+			wantError: fmt.Errorf("invalid format code"),
 		},
 		{
 			name: "Success",
 			fields: Switching{
 				dataUsecase: &mockDataUsecase{
-					ExtractFunc: func(codeString string) (*entities.ExtractData, error) {
+					ParseFunc: func(codeString string) (*entities.Data, error) {
 						switch codeString[:2] {
-						case testQRISStatic.Switching.Detail.Site.Tag:
-							return &testQRISStatic.Switching.Detail.Site, nil
-						case testQRISStatic.Switching.Detail.NMID.Tag:
-							return &testQRISStatic.Switching.Detail.NMID, nil
-						case testQRISStatic.Switching.Detail.Category.Tag:
-							return &testQRISStatic.Switching.Detail.Category, nil
+						case testQRIS.Switching.Detail.Site.Tag:
+							return &testQRIS.Switching.Detail.Site, nil
+						case testQRIS.Switching.Detail.NMID.Tag:
+							return &testQRIS.Switching.Detail.NMID, nil
+						case testQRIS.Switching.Detail.Category.Tag:
+							return &testQRIS.Switching.Detail.Category, nil
 						default:
 							return nil, nil
 						}
@@ -119,9 +118,9 @@ func TestSwitchingExtract(t *testing.T) {
 				categoryTag: testSwitchingDetailCategoryTag,
 			},
 			args: args{
-				content: testQRISStatic.Switching.Content,
+				content: testQRIS.Switching.Content,
 			},
-			want:      &testQRISStatic.Switching.Detail,
+			want:      &testQRIS.Switching.Detail,
 			wantError: nil,
 		},
 	}
@@ -135,12 +134,12 @@ func TestSwitchingExtract(t *testing.T) {
 				categoryTag: test.fields.categoryTag,
 			}
 
-			got, err := uc.Extract(test.args.content)
+			got, err := uc.Parse(test.args.content)
 			if err != nil && err.Error() != test.wantError.Error() {
-				t.Errorf(expectedErrorButGotMessage, "Extract()", test.wantError, err)
+				t.Errorf(expectedErrorButGotMessage, "Parse()", test.wantError, err)
 			}
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "Extract()", test.want, got)
+				t.Errorf(expectedButGotMessage, "Parse()", test.want, got)
 			}
 		})
 	}

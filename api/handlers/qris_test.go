@@ -55,7 +55,7 @@ func TestNewQRIS(t *testing.T) {
 	}
 }
 
-func TestQRISExtractStatic(t *testing.T) {
+func TestQRISParse(t *testing.T) {
 	type args struct {
 		requestBody string
 	}
@@ -71,7 +71,7 @@ func TestQRISExtractStatic(t *testing.T) {
 		want   want
 	}{
 		{
-			name:   "Error: Invalid JSON",
+			name:   testNameInvalidJSON,
 			fields: QRIS{},
 			args: args{
 				requestBody: `"{"qr_string": 1337}"`,
@@ -82,11 +82,11 @@ func TestQRISExtractStatic(t *testing.T) {
 			},
 		},
 		{
-			name: "Error: ExtractStatic",
+			name: "Error: h.qrisController.Parse()",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ExtractStaticFunc: func(qris string) (*entities.QRISStatic, error) {
-						return nil, fmt.Errorf("invalid QR string")
+					ParseFunc: func(qrisString string) (*entities.QRIS, error, *[]string) {
+						return nil, fmt.Errorf("invalid QR string"), nil
 					},
 				},
 			},
@@ -102,8 +102,8 @@ func TestQRISExtractStatic(t *testing.T) {
 			name: "Success",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ExtractStaticFunc: func(qris string) (*entities.QRISStatic, error) {
-						return nil, nil
+					ParseFunc: func(qrisString string) (*entities.QRIS, error, *[]string) {
+						return &entities.QRIS{}, nil, nil
 					},
 				},
 			},
@@ -112,7 +112,7 @@ func TestQRISExtractStatic(t *testing.T) {
 			},
 			want: want{
 				code:     http.StatusOK,
-				response: `"QRIS extracted successfully"`,
+				response: `"QRIS parsed successfully"`,
 			},
 		},
 	}
@@ -123,10 +123,10 @@ func TestQRISExtractStatic(t *testing.T) {
 
 			gin.SetMode(gin.TestMode)
 			router := gin.Default()
-			router.POST("/", handler.ExtractStatic)
+			router.POST("/", handler.Parse)
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(test.args.requestBody))
-			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set(testHeaderContentType, testHeaderContentTypeValue)
 
 			recorder := httptest.NewRecorder()
 			router.ServeHTTP(recorder, req)
@@ -141,7 +141,7 @@ func TestQRISExtractStatic(t *testing.T) {
 	}
 }
 
-func TestQRISStaticToDynamic(t *testing.T) {
+func TestQRISToDynamic(t *testing.T) {
 	type args struct {
 		requestBody string
 	}
@@ -157,7 +157,7 @@ func TestQRISStaticToDynamic(t *testing.T) {
 		want   want
 	}{
 		{
-			name:   "Error: Invalid JSON",
+			name:   testNameInvalidJSON,
 			fields: QRIS{},
 			args: args{
 				requestBody: `"{"qr_string": 1337}"`,
@@ -168,11 +168,11 @@ func TestQRISStaticToDynamic(t *testing.T) {
 			},
 		},
 		{
-			name: "Error: StaticToDynamic",
+			name: "Error: h.qrisController.ToDynamic()",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					StaticToDynamicFunc: func(qris string, merchantName string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error) {
-						return "", "", fmt.Errorf("invalid QR string")
+					ToDynamicFunc: func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+						return "", "", fmt.Errorf("invalid QR string"), nil
 					},
 				},
 			},
@@ -188,8 +188,8 @@ func TestQRISStaticToDynamic(t *testing.T) {
 			name: "Success",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					StaticToDynamicFunc: func(qris string, merchantName string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error) {
-						return "QR String", "QR Code", nil
+					ToDynamicFunc: func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+						return "QR Dynamic String", "QR Dynamic Code", nil, nil
 					},
 				},
 			},
@@ -209,10 +209,96 @@ func TestQRISStaticToDynamic(t *testing.T) {
 
 			gin.SetMode(gin.TestMode)
 			router := gin.Default()
-			router.POST("/", handler.StaticToDynamic)
+			router.POST("/", handler.ToDynamic)
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(test.args.requestBody))
-			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set(testHeaderContentType, testHeaderContentTypeValue)
+
+			recorder := httptest.NewRecorder()
+			router.ServeHTTP(recorder, req)
+
+			if recorder.Code != test.want.code {
+				t.Errorf(expectedStatusCode, test.want.code, recorder.Code)
+			}
+			if !bytes.Contains(recorder.Body.Bytes(), []byte(test.want.response)) {
+				t.Errorf(expectedResponseToContain, test.want.response, recorder.Body.String())
+			}
+		})
+	}
+}
+
+func TestQRISValidate(t *testing.T) {
+	type args struct {
+		requestBody string
+	}
+	type want struct {
+		code     int
+		response string
+	}
+
+	tests := []struct {
+		name   string
+		fields QRIS
+		args   args
+		want   want
+	}{
+		{
+			name:   testNameInvalidJSON,
+			fields: QRIS{},
+			args: args{
+				requestBody: `"{"qr_string": 1337}"`,
+			},
+			want: want{
+				code:     http.StatusBadRequest,
+				response: `cannot unmarshal string`,
+			},
+		},
+		{
+			name: "Error: h.qrisController.Validate()",
+			fields: QRIS{
+				qrisController: &mockQRISController{
+					ValidateFunc: func(qrisString string) (error, *[]string) {
+						return fmt.Errorf("invalid CRC16-CCITT code"), nil
+					},
+				},
+			},
+			args: args{
+				requestBody: `{"qr_string": "invalid"}`,
+			},
+			want: want{
+				code:     http.StatusInternalServerError,
+				response: `"invalid CRC16-CCITT code"`,
+			},
+		},
+		{
+			name: "Success",
+			fields: QRIS{
+				qrisController: &mockQRISController{
+					ValidateFunc: func(qrisString string) (error, *[]string) {
+						return nil, nil
+					},
+				},
+			},
+			args: args{
+				requestBody: `{"qr_string": "valid"}`,
+			},
+			want: want{
+				code:     http.StatusOK,
+				response: `"CRC16-CCITT code is valid"`,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			handler := NewQRIS(test.fields.qrisController)
+
+			gin.SetMode(gin.TestMode)
+			router := gin.Default()
+			router.POST("/", handler.Validate)
+
+			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(test.args.requestBody))
+			req.Header.Set(testHeaderContentType, testHeaderContentTypeValue)
 
 			recorder := httptest.NewRecorder()
 			router.ServeHTTP(recorder, req)

@@ -8,23 +8,35 @@ var (
 	expectedReturnNonNil              = "Expected %v to return a non-nil %v"
 	expectedStatusCode                = "Expected status code %d, got %d"
 	expectedResponseToContain         = "Expected response to contain %s, but got %s"
+
+	testNameInvalidJSON        = "Error: Invalid JSON"
+	testHeaderContentType      = "Content-Type"
+	testHeaderContentTypeValue = "application/json"
 )
 
 type mockQRISController struct {
-	ExtractStaticFunc   func(qrisStaticString string) (*entities.QRISStatic, error)
-	StaticToDynamicFunc func(qrisStaticString string, merchantName string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error)
+	ParseFunc     func(qrisString string) (*entities.QRIS, error, *[]string)
+	ToDynamicFunc func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string)
+	ValidateFunc  func(qrisString string) (error, *[]string)
 }
 
-func (m *mockQRISController) ExtractStatic(qrisStaticString string) (*entities.QRISStatic, error) {
-	if m.ExtractStaticFunc != nil {
-		return m.ExtractStaticFunc(qrisStaticString)
+func (m *mockQRISController) Parse(qrisString string) (*entities.QRIS, error, *[]string) {
+	if m.ParseFunc != nil {
+		return m.ParseFunc(qrisString)
+	}
+	return nil, nil, nil
+}
+
+func (m *mockQRISController) ToDynamic(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+	if m.ToDynamicFunc != nil {
+		return m.ToDynamicFunc(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+	}
+	return "", "", nil, nil
+}
+
+func (m *mockQRISController) Validate(qrisString string) (error, *[]string) {
+	if m.ValidateFunc != nil {
+		return m.ValidateFunc(qrisString)
 	}
 	return nil, nil
-}
-
-func (m *mockQRISController) StaticToDynamic(qrisStaticString string, merchantName string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error) {
-	if m.StaticToDynamicFunc != nil {
-		return m.StaticToDynamicFunc(qrisStaticString, merchantName, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
-	}
-	return "", "", nil
 }

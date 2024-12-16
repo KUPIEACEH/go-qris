@@ -8,8 +8,8 @@ type Acquirer struct {
 }
 
 type AcquirerDetail struct {
-	Site       ExtractData `json:"site"`
-	MPAN       ExtractData `json:"mpan"`
-	TerminalID ExtractData `json:"terminal_id"`
-	Category   ExtractData `json:"category"`
+	Site       Data `json:"site"`
+	MPAN       Data `json:"mpan"`
+	TerminalID Data `json:"terminal_id"`
+	Category   Data `json:"category"`
 }
