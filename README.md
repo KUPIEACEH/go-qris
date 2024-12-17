@@ -104,14 +104,14 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
     }
     ```
 
-    Here are additional functions you can use to interact with QRIS:
+    Here are additional functions you can use to interact:
 
-    - **Parses QRIS**
+    - **Parse QRIS**
 
       `Parse(qrisString string) (*models.QRIS, error, *[]string)`
 
       ```go
-        qris, err, errs := qrisService.Parse(qrisString)
+      qris, err, errs := qrisService.Parse(qrisString)
       ```
 
     - **Validate QRIS**
@@ -119,7 +119,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
       `IsValid(qris *models.QRIS) bool`
 
       ```go
-        isValid := qrisService.IsValid(qris)
+      isValid := qrisService.IsValid(qris)
       ```
 
     - **Modify QRIS**
@@ -127,7 +127,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
       `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
 
       ```go
-        qris, err, errs := qrisService.IsValid(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+      qris, err, errs := qrisService.IsValid(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
       ```
 
     - **Convert QRIS to String**
@@ -135,7 +135,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
       `ToString(qris *models.QRIS) string`
 
       ```go
-        qrisString := qrisService.ToString(qris)
+      qrisString := qrisService.ToString(qris)
       ```
 
 ## 🧪 Testing
