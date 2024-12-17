@@ -124,7 +124,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 
     - **Modify QRIS**
 
-      `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
+      `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
 
       ```go
       qris, err, errs := qrisService.IsValid(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
