@@ -47,15 +47,15 @@ func (c *QRIS) Convert(qrisString string, merchantCityValue string, merchantPost
 	merchantCityValue = c.inputUtil.Sanitize(merchantCityValue)
 	merchantPostalCodeValue = c.inputUtil.Sanitize(merchantPostalCodeValue)
 	paymentFeeCategoryValue = strings.ToUpper(c.inputUtil.Sanitize(paymentFeeCategoryValue))
-	qrDynamic := c.qrisUsecase.Modify(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
-	qrDynamicString := c.qrisUsecase.ToString(qrDynamic)
+	qris = c.qrisUsecase.Modify(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+	qrisString = c.qrisUsecase.ToString(qris)
 
-	qrCode, err := c.qrCodeUtil.StringToImageBase64(qrDynamicString, c.qrCodeSize)
+	qrCode, err := c.qrCodeUtil.StringToImageBase64(qrisString, c.qrCodeSize)
 	if err != nil {
-		return qrDynamicString, "", err, nil
+		return qrisString, "", err, nil
 	}
 
-	return qrDynamicString, qrCode, nil, nil
+	return qrisString, qrCode, nil, nil
 }
 
 func (c *QRIS) IsValid(qrisString string) (error, *[]string) {

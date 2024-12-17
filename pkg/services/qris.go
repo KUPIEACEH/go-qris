@@ -1,22 +1,26 @@
 package services
 
 import (
+	"strings"
+
 	"github.com/fyvri/go-qris/internal/config"
 	"github.com/fyvri/go-qris/internal/usecases"
 	"github.com/fyvri/go-qris/pkg/models"
+	"github.com/fyvri/go-qris/pkg/utils"
 )
 
 type QRIS struct {
 	crc16CCITTUsecase usecases.CRC16CCITTInterface
 	qrisUsecase       usecases.QRISInterface
+	inputUtil         utils.InputInterface
 }
 
 type QRISInterface interface {
 	Parse(qrisString string) (*models.QRIS, error, *[]string)
 	IsValid(qris *models.QRIS) bool
-	Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS
+	Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS
 	ToString(qris *models.QRIS) string
-	Convert(qrisString string, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string)
+	Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string)
 }
 
 func NewQRIS() QRISInterface {
@@ -72,14 +76,17 @@ func NewQRIS() QRISInterface {
 		qrisCategoryContents,
 		qrisPaymentFeeCategoryContents,
 	)
+	inputUtil := utils.NewInput()
 
 	return &QRIS{
 		crc16CCITTUsecase: crc16CCITTUsecase,
 		qrisUsecase:       qrisUsecase,
+		inputUtil:         inputUtil,
 	}
 }
 
 func (s *QRIS) Parse(qrisString string) (*models.QRIS, error, *[]string) {
+	qrisString = s.inputUtil.Sanitize(qrisString)
 	qris, err, errs := s.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return nil, err, errs
@@ -94,9 +101,13 @@ func (s *QRIS) IsValid(qris *models.QRIS) bool {
 	return s.qrisUsecase.IsValid(qrisEntity)
 }
 
-func (s *QRIS) Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS {
+func (s *QRIS) Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS {
 	qrisEntity := mapQRISModelToEntity(qris)
-	qrisModel := s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCode, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
+
+	merchantCityValue = s.inputUtil.Sanitize(merchantCityValue)
+	merchantPostalCodeValue = s.inputUtil.Sanitize(merchantPostalCodeValue)
+	paymentFeeCategoryValue = strings.ToUpper(s.inputUtil.Sanitize(paymentFeeCategoryValue))
+	qrisModel := s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCodeValue, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
 
 	return mapQRISEntityToModel(qrisModel)
 }
@@ -121,12 +132,17 @@ func (s *QRIS) ToString(qris *models.QRIS) string {
 	return qrisString + s.crc16CCITTUsecase.GenerateCode(qrisString)
 }
 
-func (s *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string) {
+func (s *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string) {
+	qrisString = s.inputUtil.Sanitize(qrisString)
 	qrisEntity, err, errs := s.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return "", err, errs
 	}
-	qrisEntity = s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCode, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
+
+	merchantCityValue = s.inputUtil.Sanitize(merchantCityValue)
+	merchantPostalCodeValue = s.inputUtil.Sanitize(merchantPostalCodeValue)
+	paymentFeeCategoryValue = strings.ToUpper(s.inputUtil.Sanitize(paymentFeeCategoryValue))
+	qrisEntity = s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCodeValue, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
 
 	return s.qrisUsecase.ToString(qrisEntity), nil, nil
 }

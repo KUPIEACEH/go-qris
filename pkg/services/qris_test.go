@@ -9,6 +9,7 @@ import (
 	"github.com/fyvri/go-qris/internal/domain/entities"
 	"github.com/fyvri/go-qris/internal/usecases"
 	"github.com/fyvri/go-qris/pkg/models"
+	"github.com/fyvri/go-qris/pkg/utils"
 )
 
 func TestNewQRIS(t *testing.T) {
@@ -53,6 +54,7 @@ func TestNewQRIS(t *testing.T) {
 		qrisCategoryContents,
 		qrisPaymentFeeCategoryContents,
 	)
+	inputUtil := utils.NewInput()
 
 	tests := []struct {
 		name string
@@ -63,6 +65,7 @@ func TestNewQRIS(t *testing.T) {
 			want: &QRIS{
 				crc16CCITTUsecase: crc16CCITTUsecase,
 				qrisUsecase:       qrisUsecase,
+				inputUtil:         inputUtil,
 			},
 		},
 	}
@@ -102,6 +105,11 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Error: s.qrisUsecase.Parse()",
 			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						return testQRISEntityString
+					},
+				},
 				qrisUsecase: &mockQRISUsecase{
 					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
 						return nil, fmt.Errorf("invalid format code"), nil
@@ -117,6 +125,11 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Success",
 			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						return testQRISEntityString
+					},
+				},
 				qrisUsecase: &mockQRISUsecase{
 					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
 						return &testQRISEntity, nil, nil
@@ -136,6 +149,7 @@ func TestQRISParse(t *testing.T) {
 			uc := &QRIS{
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
 				qrisUsecase:       test.fields.qrisUsecase,
+				inputUtil:         test.fields.inputUtil,
 			}
 
 			got, err, _ := uc.Parse(test.args.qrString)
@@ -181,6 +195,7 @@ func TestQRISIsValid(t *testing.T) {
 			uc := &QRIS{
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
 				qrisUsecase:       test.fields.qrisUsecase,
+				inputUtil:         test.fields.inputUtil,
 			}
 
 			got := uc.IsValid(test.args.qris)
@@ -205,6 +220,20 @@ func TestQRISModify(t *testing.T) {
 		{
 			name: "Success: Fixed Payment Fee",
 			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						switch input {
+						case testMerchantCityContent:
+							return testMerchantCityContent
+						case testMerchantPostalCodeContent:
+							return testMerchantPostalCodeContent
+						case testPaymentFeeCategoryFixedContent:
+							return testPaymentFeeCategoryFixedContent
+						default:
+							return ""
+						}
+					},
+				},
 				qrisUsecase: &mockQRISUsecase{
 					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
 						return &testQRISEntityModified
@@ -223,6 +252,7 @@ func TestQRISModify(t *testing.T) {
 			uc := &QRIS{
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
 				qrisUsecase:       test.fields.qrisUsecase,
+				inputUtil:         test.fields.inputUtil,
 			}
 
 			got := uc.Modify(test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue)
@@ -279,6 +309,7 @@ func TestQRISToString(t *testing.T) {
 			uc := &QRIS{
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
 				qrisUsecase:       test.fields.qrisUsecase,
+				inputUtil:         test.fields.inputUtil,
 			}
 
 			got := uc.ToString(test.args.qris)
@@ -304,6 +335,11 @@ func TestQRISConvert(t *testing.T) {
 		{
 			name: "Error: s.qrisUsecase.Parse()",
 			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						return testQRISEntityString
+					},
+				},
 				qrisUsecase: &mockQRISUsecase{
 					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
 						return nil, fmt.Errorf("invalid extract acquirer for content %s", testQRISEntity.Acquirer.Content), nil
@@ -319,6 +355,22 @@ func TestQRISConvert(t *testing.T) {
 		{
 			name: "Success",
 			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						switch input {
+						case testQRISEntityString:
+							return testQRISEntityString
+						case testMerchantCityContent:
+							return testMerchantCityContent
+						case testMerchantPostalCodeContent:
+							return testMerchantPostalCodeContent
+						case testPaymentFeeCategoryFixedContent:
+							return testPaymentFeeCategoryFixedContent
+						default:
+							return ""
+						}
+					},
+				},
 				qrisUsecase: &mockQRISUsecase{
 					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
 						return &testQRISEntity, nil, nil
@@ -344,6 +396,7 @@ func TestQRISConvert(t *testing.T) {
 			uc := &QRIS{
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
 				qrisUsecase:       test.fields.qrisUsecase,
+				inputUtil:         test.fields.inputUtil,
 			}
 
 			got, err, _ := uc.Convert(test.args.qrString, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue)

@@ -559,3 +559,14 @@ func (m *mockQRISUsecase) ToString(qris *entities.QRIS) string {
 	}
 	return ""
 }
+
+type mockInputUtil struct {
+	SanitizeFunc func(input string) string
+}
+
+func (m *mockInputUtil) Sanitize(input string) string {
+	if m.SanitizeFunc != nil {
+		return m.SanitizeFunc(input)
+	}
+	return ""
+}
