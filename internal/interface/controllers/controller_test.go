@@ -13,16 +13,16 @@ var (
 	testNameErrorParse              = "Error: c.qrisUsecase.Parse()"
 	testErrMessageInvalidFormatCode = "invalid format code"
 
-	testQRISString        = "QR String"
-	testQRISDynamicString = "QRIS Dynamic String"
-	testQRCodeSize        = 125
+	testQRISString         = "QR String"
+	testQRISModifiedString = "QRIS Modified String"
+	testQRCodeSize         = 125
 )
 
 type mockQRISUsecase struct {
-	ParseFunc           func(qrString string) (*entities.QRIS, error, *[]string)
-	ToDynamicFunc       func(qris *entities.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic
-	DynamicToStringFunc func(qrisDynamic *entities.QRISDynamic) string
-	ValidateFunc        func(qris *entities.QRIS) bool
+	ParseFunc    func(qrString string) (*entities.QRIS, error, *[]string)
+	IsValidFunc  func(qris *entities.QRIS) bool
+	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+	ToStringFunc func(qris *entities.QRIS) string
 }
 
 func (m *mockQRISUsecase) Parse(qrString string) (*entities.QRIS, error, *[]string) {
@@ -32,25 +32,25 @@ func (m *mockQRISUsecase) Parse(qrString string) (*entities.QRIS, error, *[]stri
 	return nil, nil, nil
 }
 
-func (m *mockQRISUsecase) ToDynamic(qris *entities.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic {
-	if m.ToDynamicFunc != nil {
-		return m.ToDynamicFunc(qris, merchantCity, merchantPostalCode, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+func (m *mockQRISUsecase) IsValid(qris *entities.QRIS) bool {
+	if m.IsValidFunc != nil {
+		return m.IsValidFunc(qris)
+	}
+	return false
+}
+
+func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+	if m.ModifyFunc != nil {
+		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
 	}
 	return nil
 }
 
-func (m *mockQRISUsecase) DynamicToString(qrisDynamic *entities.QRISDynamic) string {
-	if m.DynamicToStringFunc != nil {
-		return m.DynamicToStringFunc(qrisDynamic)
+func (m *mockQRISUsecase) ToString(qris *entities.QRIS) string {
+	if m.ToStringFunc != nil {
+		return m.ToStringFunc(qris)
 	}
 	return ""
-}
-
-func (m *mockQRISUsecase) Validate(qris *entities.QRIS) bool {
-	if m.ValidateFunc != nil {
-		return m.ValidateFunc(qris)
-	}
-	return false
 }
 
 type mockQRCodeUtil struct {

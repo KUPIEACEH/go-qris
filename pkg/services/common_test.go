@@ -21,7 +21,7 @@ func TestMapQRISEntityToModel(t *testing.T) {
 		{
 			name: "Success",
 			args: args{
-				qris: &testQRIS,
+				qris: &testQRISEntity,
 			},
 			want: &testQRISModel,
 		},
@@ -52,7 +52,7 @@ func TestMapQRISModelToEntity(t *testing.T) {
 			args: args{
 				qris: &testQRISModel,
 			},
-			want: &testQRIS,
+			want: &testQRISEntity,
 		},
 	}
 
@@ -61,35 +61,6 @@ func TestMapQRISModelToEntity(t *testing.T) {
 			got := mapQRISModelToEntity(test.args.qris)
 			if !reflect.DeepEqual(got, test.want) {
 				t.Errorf(expectedButGotMessage, "mapQRISModelToEntity()", test.want, got)
-			}
-		})
-	}
-}
-
-func TestMapQRISDynamicEntityToModel(t *testing.T) {
-	type args struct {
-		qris *entities.QRISDynamic
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want *models.QRISDynamic
-	}{
-		{
-			name: "Success",
-			args: args{
-				qris: &testQRISDynamic,
-			},
-			want: &testQRISDynamicModel,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := mapQRISDynamicEntityToModel(test.args.qris)
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "mapQRISDynamicEntityToModel()", test.want, got)
 			}
 		})
 	}

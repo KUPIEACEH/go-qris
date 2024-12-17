@@ -18,8 +18,8 @@ type QRIS struct {
 
 type QRISInterface interface {
 	Parse(qrisString string) (*entities.QRIS, error, *[]string)
-	ToDynamic(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string)
-	Validate(qrisString string) (error, *[]string)
+	Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string)
+	IsValid(qrisString string) (error, *[]string)
 }
 
 func NewQRIS(inputUtil utils.InputInterface, qrCodeUtil utils.QRCodeInterface, qrisUsecase usecases.QRISInterface, qrCodeSize int) QRISInterface {
@@ -37,18 +37,18 @@ func (c *QRIS) Parse(qrisString string) (*entities.QRIS, error, *[]string) {
 	return c.qrisUsecase.Parse(qrisString)
 }
 
-func (c *QRIS) ToDynamic(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+func (c *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
 	qrisString = c.inputUtil.Sanitize(qrisString)
 	qris, err, errs := c.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return "", "", err, errs
 	}
 
-	merchantCity = c.inputUtil.Sanitize(merchantCity)
-	merchantPostalCode = c.inputUtil.Sanitize(merchantPostalCode)
-	paymentFeeCategory = strings.ToUpper(c.inputUtil.Sanitize(paymentFeeCategory))
-	qrDynamic := c.qrisUsecase.ToDynamic(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
-	qrDynamicString := c.qrisUsecase.DynamicToString(qrDynamic)
+	merchantCityValue = c.inputUtil.Sanitize(merchantCityValue)
+	merchantPostalCodeValue = c.inputUtil.Sanitize(merchantPostalCodeValue)
+	paymentFeeCategoryValue = strings.ToUpper(c.inputUtil.Sanitize(paymentFeeCategoryValue))
+	qrDynamic := c.qrisUsecase.Modify(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+	qrDynamicString := c.qrisUsecase.ToString(qrDynamic)
 
 	qrCode, err := c.qrCodeUtil.StringToImageBase64(qrDynamicString, c.qrCodeSize)
 	if err != nil {
@@ -58,14 +58,14 @@ func (c *QRIS) ToDynamic(qrisString string, merchantCity string, merchantPostalC
 	return qrDynamicString, qrCode, nil, nil
 }
 
-func (c *QRIS) Validate(qrisString string) (error, *[]string) {
+func (c *QRIS) IsValid(qrisString string) (error, *[]string) {
 	qrisString = c.inputUtil.Sanitize(qrisString)
 	qris, err, errs := c.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return err, errs
 	}
 
-	isValid := c.qrisUsecase.Validate(qris)
+	isValid := c.qrisUsecase.IsValid(qris)
 	if !isValid {
 		return fmt.Errorf("invalid CRC16-CCITT code"), nil
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
-	qrisTags := usecases.QRISTags{
+	qrisTags := &usecases.QRISTags{
 		VersionTag:               config.VersionTag,
 		CategoryTag:              config.CategoryTag,
 		AcquirerTag:              config.AcquirerTag,
@@ -31,11 +31,11 @@ func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
 		AdditionalInformationTag: config.AdditionalInformationTag,
 		CRCCodeTag:               config.CRCCodeTag,
 	}
-	qrisCategoryContents := usecases.QRISCategoryContents{
+	qrisCategoryContents := &usecases.QRISCategoryContents{
 		Static:  config.CategoryStaticContent,
 		Dynamic: config.CategoryDynamicContent,
 	}
-	qrisPaymentFeeCategoryContents := usecases.QRISPaymentFeeCategoryContents{
+	qrisPaymentFeeCategoryContents := &usecases.QRISPaymentFeeCategoryContents{
 		Fixed:   config.PaymentFeeCategoryFixedContent,
 		Percent: config.PaymentFeeCategoryPercentContent,
 	}
@@ -59,6 +59,6 @@ func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
 	qrisHandler := handlers.NewQRIS(qrisController)
 
 	group.POST("/parse", qrisHandler.Parse)
-	group.POST("/to-dynamic", qrisHandler.ToDynamic)
-	group.POST("/validate", qrisHandler.Validate)
+	group.POST("/convert", qrisHandler.Convert)
+	group.POST("/is-valid", qrisHandler.IsValid)
 }

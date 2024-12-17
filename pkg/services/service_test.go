@@ -5,6 +5,7 @@ import (
 
 	"github.com/fyvri/go-qris/internal/domain/entities"
 	"github.com/fyvri/go-qris/internal/usecases"
+	"github.com/fyvri/go-qris/pkg/models"
 )
 
 var (
@@ -111,7 +112,7 @@ var (
 		},
 	}
 
-	testQRIS = entities.QRIS{
+	testQRISEntity = entities.QRIS{
 		Version: entities.Data{
 			Tag:     testVersionTag,
 			Content: "01",
@@ -145,19 +146,19 @@ var (
 			Data:    testCurrencyCodeTag + "03360",
 		},
 		PaymentAmount: entities.Data{
-			Tag:     testPaymentAmountTag,
-			Content: "1337",
-			Data:    testPaymentAmountTag + "041337",
+			Tag:     "",
+			Content: "",
+			Data:    "",
 		},
 		PaymentFeeCategory: entities.Data{
-			Tag:     testPaymentFeeCategoryTag,
-			Content: testPaymentFeeCategoryFixedContent,
-			Data:    testPaymentFeeCategoryTag + "02" + testPaymentFeeCategoryFixedContent,
+			Tag:     "",
+			Content: "",
+			Data:    "",
 		},
 		PaymentFee: entities.Data{
-			Tag:     testPaymentFeeFixedTag,
-			Content: "666",
-			Data:    testPaymentFeeFixedTag + "03666",
+			Tag:     "",
+			Content: "",
+			Data:    "",
 		},
 		CountryCode: entities.Data{
 			Tag:     testCountryCodeTag,
@@ -190,45 +191,34 @@ var (
 			Data:    testCRCCodeTag + "041FA2",
 		},
 	}
-	testQRISModel = *mapQRISEntityToModel(&testQRIS)
+	testQRISEntityString = testQRISEntity.Version.Data +
+		testQRISEntity.Category.Data +
+		testQRISEntity.Acquirer.Data +
+		testQRISEntity.Switching.Data +
+		testQRISEntity.MerchantCategoryCode.Data +
+		testQRISEntity.CurrencyCode.Data +
+		testQRISEntity.CountryCode.Data +
+		testQRISEntity.MerchantName.Data +
+		testQRISEntity.MerchantCity.Data +
+		testQRISEntity.MerchantPostalCode.Data +
+		testQRISEntity.AdditionalInformation.Data +
+		testQRISEntity.CRCCode.Data
 
+	testPaymentAmountValue        = 1337
+	testPaymentFeeValue           = 666
 	testMerchantCityContent       = "New Merchant City"
 	testMerchantPostalCodeContent = "55181"
-	testPaymentAmountValue        = uint32(1337)
-	testQRISString                = testQRIS.Version.Data +
-		testQRIS.Category.Data +
-		testQRIS.Acquirer.Data +
-		testQRIS.Switching.Data +
-		testQRIS.MerchantCategoryCode.Data +
-		testQRIS.CurrencyCode.Data +
-		testQRIS.CountryCode.Data +
-		testQRIS.MerchantName.Data +
-		testQRIS.MerchantCity.Data +
-		testQRIS.MerchantPostalCode.Data +
-		testQRIS.AdditionalInformation.Data +
-		testQRIS.CRCCode.Data
-
-	testMerchantCity = entities.Data{
-		Tag:     testQRIS.MerchantCity.Tag,
-		Content: testMerchantCityContent,
-		Data:    testQRIS.MerchantCity.Tag + fmt.Sprintf("%02d", len(testMerchantCityContent)) + testMerchantCityContent,
-	}
-	testMerchantPostalCode = entities.Data{
-		Tag:     testQRIS.MerchantPostalCode.Tag,
-		Content: testMerchantPostalCodeContent,
-		Data:    testQRIS.MerchantPostalCode.Tag + fmt.Sprintf("%02d", len(testMerchantPostalCodeContent)) + testMerchantPostalCodeContent,
-	}
-	testQRISDynamic = entities.QRISDynamic{
-		Version: testQRIS.Version,
+	testQRISEntityModified        = entities.QRIS{
+		Version: testQRISEntity.Version,
 		Category: entities.Data{
 			Tag:     testCategoryTag,
 			Content: testCategoryDynamicContent,
 			Data:    testCategoryTag + fmt.Sprintf("%02d", len(testCategoryDynamicContent)) + testCategoryDynamicContent,
 		},
-		Acquirer:             testQRIS.Acquirer,
-		Switching:            testQRIS.Switching,
-		MerchantCategoryCode: testQRIS.MerchantCategoryCode,
-		CurrencyCode:         testQRIS.CurrencyCode,
+		Acquirer:             testQRISEntity.Acquirer,
+		Switching:            testQRISEntity.Switching,
+		MerchantCategoryCode: testQRISEntity.MerchantCategoryCode,
+		CurrencyCode:         testQRISEntity.CurrencyCode,
 		PaymentAmount: entities.Data{
 			Tag:     testPaymentAmountTag,
 			Content: fmt.Sprintf("%d", testPaymentAmountValue),
@@ -241,37 +231,287 @@ var (
 		},
 		PaymentFee: entities.Data{
 			Tag:     testPaymentFeeFixedTag,
-			Content: "666",
-			Data:    testPaymentFeeFixedTag + fmt.Sprintf("%02d", len("666")) + "666",
+			Content: fmt.Sprintf("%d", testPaymentFeeValue),
+			Data:    testPaymentFeeFixedTag + fmt.Sprintf("%02d", len(fmt.Sprintf("%d", testPaymentFeeValue))) + fmt.Sprintf("%d", testPaymentFeeValue),
 		},
-		CountryCode:           testQRIS.CountryCode,
-		MerchantName:          testQRIS.MerchantName,
-		MerchantCity:          testMerchantCity,
-		MerchantPostalCode:    testMerchantPostalCode,
-		AdditionalInformation: testQRIS.AdditionalInformation,
-		CRCCode: entities.Data{
-			Tag:     testCRCCodeTag,
-			Content: "AZ15",
-			Data:    testCRCCodeTag + fmt.Sprintf("%02d", len("AZ15")) + "AZ15",
+		CountryCode:  testQRISEntity.CountryCode,
+		MerchantName: testQRISEntity.MerchantName,
+		MerchantCity: entities.Data{
+			Tag:     testQRISEntity.MerchantCity.Tag,
+			Content: testMerchantCityContent,
+			Data:    testQRISEntity.MerchantCity.Tag + fmt.Sprintf("%02d", len(testMerchantCityContent)) + testMerchantCityContent,
+		},
+		MerchantPostalCode: entities.Data{
+			Tag:     testQRISEntity.MerchantPostalCode.Tag,
+			Content: testMerchantPostalCodeContent,
+			Data:    testQRISEntity.MerchantPostalCode.Tag + fmt.Sprintf("%02d", len(testMerchantPostalCodeContent)) + testMerchantPostalCodeContent,
+		},
+		AdditionalInformation: testQRISEntity.AdditionalInformation,
+		CRCCode:               testQRISEntity.CRCCode,
+	}
+	testQRISEntityModifiedString = testQRISEntityModified.Version.Data +
+		testQRISEntityModified.Category.Data +
+		testQRISEntityModified.Acquirer.Data +
+		testQRISEntityModified.Switching.Data +
+		testQRISEntityModified.MerchantCategoryCode.Data +
+		testQRISEntityModified.CurrencyCode.Data +
+		testQRISEntityModified.PaymentAmount.Data +
+		testQRISEntityModified.PaymentFeeCategory.Data +
+		testQRISEntityModified.PaymentFee.Data +
+		testQRISEntityModified.CountryCode.Data +
+		testQRISEntityModified.MerchantName.Data +
+		testQRISEntityModified.MerchantCity.Data +
+		testQRISEntityModified.MerchantPostalCode.Data +
+		testQRISEntityModified.AdditionalInformation.Data +
+		testQRISEntityModified.CRCCode.Data
+
+	testQRISModel = models.QRIS{
+		Version: models.Data{
+			Tag:     testQRISEntity.Version.Tag,
+			Content: testQRISEntity.Version.Content,
+			Data:    testQRISEntity.Version.Data,
+		},
+		Category: models.Data{
+			Tag:     testQRISEntity.Category.Tag,
+			Content: testQRISEntity.Category.Content,
+			Data:    testQRISEntity.Category.Data,
+		},
+		Acquirer: models.Acquirer{
+			Tag:     testQRISEntity.Acquirer.Tag,
+			Content: testQRISEntity.Acquirer.Content,
+			Data:    testQRISEntity.Acquirer.Data,
+			Detail: models.AcquirerDetail{
+				Site: models.Data{
+					Tag:     testQRISEntity.Acquirer.Detail.Site.Tag,
+					Content: testQRISEntity.Acquirer.Detail.Site.Content,
+					Data:    testQRISEntity.Acquirer.Detail.Site.Data,
+				},
+				MPAN: models.Data{
+					Tag:     testQRISEntity.Acquirer.Detail.MPAN.Tag,
+					Content: testQRISEntity.Acquirer.Detail.MPAN.Content,
+					Data:    testQRISEntity.Acquirer.Detail.MPAN.Data,
+				},
+				TerminalID: models.Data{
+					Tag:     testQRISEntity.Acquirer.Detail.TerminalID.Tag,
+					Content: testQRISEntity.Acquirer.Detail.TerminalID.Content,
+					Data:    testQRISEntity.Acquirer.Detail.TerminalID.Data,
+				},
+				Category: models.Data{
+					Tag:     testQRISEntity.Acquirer.Detail.Category.Tag,
+					Content: testQRISEntity.Acquirer.Detail.Category.Content,
+					Data:    testQRISEntity.Acquirer.Detail.Category.Data,
+				},
+			},
+		},
+		Switching: models.Switching{
+			Tag:     testQRISEntity.Switching.Tag,
+			Content: testQRISEntity.Switching.Content,
+			Data:    testQRISEntity.Switching.Data,
+			Detail: models.SwitchingDetail{
+				Site: models.Data{
+					Tag:     testQRISEntity.Switching.Detail.Site.Tag,
+					Content: testQRISEntity.Switching.Detail.Site.Content,
+					Data:    testQRISEntity.Switching.Detail.Site.Data,
+				},
+				NMID: models.Data{
+					Tag:     testQRISEntity.Switching.Detail.NMID.Tag,
+					Content: testQRISEntity.Switching.Detail.NMID.Content,
+					Data:    testQRISEntity.Switching.Detail.NMID.Data,
+				},
+				Category: models.Data{
+					Tag:     testQRISEntity.Switching.Detail.Category.Tag,
+					Content: testQRISEntity.Switching.Detail.Category.Content,
+					Data:    testQRISEntity.Switching.Detail.Category.Data,
+				},
+			},
+		},
+		MerchantCategoryCode: models.Data{
+			Tag:     testQRISEntity.MerchantCategoryCode.Tag,
+			Content: testQRISEntity.MerchantCategoryCode.Content,
+			Data:    testQRISEntity.MerchantCategoryCode.Data,
+		},
+		CurrencyCode: models.Data{
+			Tag:     testQRISEntity.CurrencyCode.Tag,
+			Content: testQRISEntity.CurrencyCode.Content,
+			Data:    testQRISEntity.CurrencyCode.Data,
+		},
+		PaymentAmount: models.Data{
+			Tag:     testQRISEntity.PaymentAmount.Tag,
+			Content: testQRISEntity.PaymentAmount.Content,
+			Data:    testQRISEntity.PaymentAmount.Data,
+		},
+		PaymentFeeCategory: models.Data{
+			Tag:     testQRISEntity.PaymentFeeCategory.Tag,
+			Content: testQRISEntity.PaymentFeeCategory.Content,
+			Data:    testQRISEntity.PaymentFeeCategory.Data,
+		},
+		PaymentFee: models.Data{
+			Tag:     testQRISEntity.PaymentFee.Tag,
+			Content: testQRISEntity.PaymentFee.Content,
+			Data:    testQRISEntity.PaymentFee.Data,
+		},
+		CountryCode: models.Data{
+			Tag:     testQRISEntity.CountryCode.Tag,
+			Content: testQRISEntity.CountryCode.Content,
+			Data:    testQRISEntity.CountryCode.Data,
+		},
+		MerchantName: models.Data{
+			Tag:     testQRISEntity.MerchantName.Tag,
+			Content: testQRISEntity.MerchantName.Content,
+			Data:    testQRISEntity.MerchantName.Data,
+		},
+		MerchantCity: models.Data{
+			Tag:     testQRISEntity.MerchantCity.Tag,
+			Content: testQRISEntity.MerchantCity.Content,
+			Data:    testQRISEntity.MerchantCity.Data,
+		},
+		MerchantPostalCode: models.Data{
+			Tag:     testQRISEntity.MerchantPostalCode.Tag,
+			Content: testQRISEntity.MerchantPostalCode.Content,
+			Data:    testQRISEntity.MerchantPostalCode.Data,
+		},
+		AdditionalInformation: models.Data{
+			Tag:     testQRISEntity.AdditionalInformation.Tag,
+			Content: testQRISEntity.AdditionalInformation.Content,
+			Data:    testQRISEntity.AdditionalInformation.Data,
+		},
+		CRCCode: models.Data{
+			Tag:     testQRISEntity.CRCCode.Tag,
+			Content: testQRISEntity.CRCCode.Content,
+			Data:    testQRISEntity.CRCCode.Data,
 		},
 	}
-
-	testQRISDynamicModel  = *mapQRISDynamicEntityToModel(&testQRISDynamic)
-	testQRISDynamicString = testQRISDynamic.Version.Data +
-		testQRISDynamic.Category.Data +
-		testQRISDynamic.Acquirer.Data +
-		testQRISDynamic.Switching.Data +
-		testQRISDynamic.MerchantCategoryCode.Data +
-		testQRISDynamic.CurrencyCode.Data +
-		testQRISDynamic.PaymentAmount.Data +
-		testQRISDynamic.PaymentFeeCategory.Data +
-		testQRISDynamic.PaymentFee.Data +
-		testQRISDynamic.CountryCode.Data +
-		testQRISDynamic.MerchantName.Data +
-		testQRISDynamic.MerchantCity.Data +
-		testQRISDynamic.MerchantPostalCode.Data +
-		testQRISDynamic.AdditionalInformation.Data +
-		testQRISDynamic.CRCCode.Data
+	testQRISModelModified = models.QRIS{
+		Version: models.Data{
+			Tag:     testQRISEntityModified.Version.Tag,
+			Content: testQRISEntityModified.Version.Content,
+			Data:    testQRISEntityModified.Version.Data,
+		},
+		Category: models.Data{
+			Tag:     testQRISEntityModified.Category.Tag,
+			Content: testQRISEntityModified.Category.Content,
+			Data:    testQRISEntityModified.Category.Data,
+		},
+		Acquirer: models.Acquirer{
+			Tag:     testQRISEntityModified.Acquirer.Tag,
+			Content: testQRISEntityModified.Acquirer.Content,
+			Data:    testQRISEntityModified.Acquirer.Data,
+			Detail: models.AcquirerDetail{
+				Site: models.Data{
+					Tag:     testQRISEntityModified.Acquirer.Detail.Site.Tag,
+					Content: testQRISEntityModified.Acquirer.Detail.Site.Content,
+					Data:    testQRISEntityModified.Acquirer.Detail.Site.Data,
+				},
+				MPAN: models.Data{
+					Tag:     testQRISEntityModified.Acquirer.Detail.MPAN.Tag,
+					Content: testQRISEntityModified.Acquirer.Detail.MPAN.Content,
+					Data:    testQRISEntityModified.Acquirer.Detail.MPAN.Data,
+				},
+				TerminalID: models.Data{
+					Tag:     testQRISEntityModified.Acquirer.Detail.TerminalID.Tag,
+					Content: testQRISEntityModified.Acquirer.Detail.TerminalID.Content,
+					Data:    testQRISEntityModified.Acquirer.Detail.TerminalID.Data,
+				},
+				Category: models.Data{
+					Tag:     testQRISEntityModified.Acquirer.Detail.Category.Tag,
+					Content: testQRISEntityModified.Acquirer.Detail.Category.Content,
+					Data:    testQRISEntityModified.Acquirer.Detail.Category.Data,
+				},
+			},
+		},
+		Switching: models.Switching{
+			Tag:     testQRISEntityModified.Switching.Tag,
+			Content: testQRISEntityModified.Switching.Content,
+			Data:    testQRISEntityModified.Switching.Data,
+			Detail: models.SwitchingDetail{
+				Site: models.Data{
+					Tag:     testQRISEntityModified.Switching.Detail.Site.Tag,
+					Content: testQRISEntityModified.Switching.Detail.Site.Content,
+					Data:    testQRISEntityModified.Switching.Detail.Site.Data,
+				},
+				NMID: models.Data{
+					Tag:     testQRISEntityModified.Switching.Detail.NMID.Tag,
+					Content: testQRISEntityModified.Switching.Detail.NMID.Content,
+					Data:    testQRISEntityModified.Switching.Detail.NMID.Data,
+				},
+				Category: models.Data{
+					Tag:     testQRISEntityModified.Switching.Detail.Category.Tag,
+					Content: testQRISEntityModified.Switching.Detail.Category.Content,
+					Data:    testQRISEntityModified.Switching.Detail.Category.Data,
+				},
+			},
+		},
+		MerchantCategoryCode: models.Data{
+			Tag:     testQRISEntityModified.MerchantCategoryCode.Tag,
+			Content: testQRISEntityModified.MerchantCategoryCode.Content,
+			Data:    testQRISEntityModified.MerchantCategoryCode.Data,
+		},
+		CurrencyCode: models.Data{
+			Tag:     testQRISEntityModified.CurrencyCode.Tag,
+			Content: testQRISEntityModified.CurrencyCode.Content,
+			Data:    testQRISEntityModified.CurrencyCode.Data,
+		},
+		PaymentAmount: models.Data{
+			Tag:     testQRISEntityModified.PaymentAmount.Tag,
+			Content: testQRISEntityModified.PaymentAmount.Content,
+			Data:    testQRISEntityModified.PaymentAmount.Data,
+		},
+		PaymentFeeCategory: models.Data{
+			Tag:     testQRISEntityModified.PaymentFeeCategory.Tag,
+			Content: testQRISEntityModified.PaymentFeeCategory.Content,
+			Data:    testQRISEntityModified.PaymentFeeCategory.Data,
+		},
+		PaymentFee: models.Data{
+			Tag:     testQRISEntityModified.PaymentFee.Tag,
+			Content: testQRISEntityModified.PaymentFee.Content,
+			Data:    testQRISEntityModified.PaymentFee.Data,
+		},
+		CountryCode: models.Data{
+			Tag:     testQRISEntityModified.CountryCode.Tag,
+			Content: testQRISEntityModified.CountryCode.Content,
+			Data:    testQRISEntityModified.CountryCode.Data,
+		},
+		MerchantName: models.Data{
+			Tag:     testQRISEntityModified.MerchantName.Tag,
+			Content: testQRISEntityModified.MerchantName.Content,
+			Data:    testQRISEntityModified.MerchantName.Data,
+		},
+		MerchantCity: models.Data{
+			Tag:     testQRISEntityModified.MerchantCity.Tag,
+			Content: testQRISEntityModified.MerchantCity.Content,
+			Data:    testQRISEntityModified.MerchantCity.Data,
+		},
+		MerchantPostalCode: models.Data{
+			Tag:     testQRISEntityModified.MerchantPostalCode.Tag,
+			Content: testQRISEntityModified.MerchantPostalCode.Content,
+			Data:    testQRISEntityModified.MerchantPostalCode.Data,
+		},
+		AdditionalInformation: models.Data{
+			Tag:     testQRISEntityModified.AdditionalInformation.Tag,
+			Content: testQRISEntityModified.AdditionalInformation.Content,
+			Data:    testQRISEntityModified.AdditionalInformation.Data,
+		},
+		CRCCode: models.Data{
+			Tag:     testQRISEntityModified.CRCCode.Tag,
+			Content: testQRISEntityModified.CRCCode.Content,
+			Data:    testQRISEntityModified.CRCCode.Data,
+		},
+	}
+	testQRISModelModifiedString = testQRISModelModified.Version.Data +
+		testQRISModelModified.Category.Data +
+		testQRISModelModified.Acquirer.Data +
+		testQRISModelModified.Switching.Data +
+		testQRISModelModified.MerchantCategoryCode.Data +
+		testQRISModelModified.CurrencyCode.Data +
+		testQRISModelModified.PaymentAmount.Data +
+		testQRISModelModified.PaymentFeeCategory.Data +
+		testQRISModelModified.PaymentFee.Data +
+		testQRISModelModified.CountryCode.Data +
+		testQRISModelModified.MerchantName.Data +
+		testQRISModelModified.MerchantCity.Data +
+		testQRISModelModified.MerchantPostalCode.Data +
+		testQRISModelModified.AdditionalInformation.Data +
+		testQRISModelModified.CRCCode.Data
 )
 
 type mockCRC16CCITTUsecase struct {
@@ -286,10 +526,10 @@ func (m *mockCRC16CCITTUsecase) GenerateCode(code string) string {
 }
 
 type mockQRISUsecase struct {
-	ParseFunc           func(qrString string) (*entities.QRIS, error, *[]string)
-	ToDynamicFunc       func(qris *entities.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic
-	DynamicToStringFunc func(qrisDynamic *entities.QRISDynamic) string
-	ValidateFunc        func(qris *entities.QRIS) bool
+	ParseFunc    func(qrString string) (*entities.QRIS, error, *[]string)
+	IsValidFunc  func(qris *entities.QRIS) bool
+	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+	ToStringFunc func(qris *entities.QRIS) string
 }
 
 func (m *mockQRISUsecase) Parse(qrString string) (*entities.QRIS, error, *[]string) {
@@ -299,23 +539,23 @@ func (m *mockQRISUsecase) Parse(qrString string) (*entities.QRIS, error, *[]stri
 	return nil, nil, nil
 }
 
-func (m *mockQRISUsecase) ToDynamic(qris *entities.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic {
-	if m.ToDynamicFunc != nil {
-		return m.ToDynamicFunc(qris, merchantCity, merchantPostalCode, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+func (m *mockQRISUsecase) IsValid(qris *entities.QRIS) bool {
+	if m.IsValidFunc != nil {
+		return m.IsValidFunc(qris)
+	}
+	return false
+}
+
+func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+	if m.ModifyFunc != nil {
+		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
 	}
 	return nil
 }
 
-func (m *mockQRISUsecase) DynamicToString(qrisDynamic *entities.QRISDynamic) string {
-	if m.DynamicToStringFunc != nil {
-		return m.DynamicToStringFunc(qrisDynamic)
+func (m *mockQRISUsecase) ToString(qris *entities.QRIS) string {
+	if m.ToStringFunc != nil {
+		return m.ToStringFunc(qris)
 	}
 	return ""
-}
-
-func (m *mockQRISUsecase) Validate(qris *entities.QRIS) bool {
-	if m.ValidateFunc != nil {
-		return m.ValidateFunc(qris)
-	}
-	return false
 }

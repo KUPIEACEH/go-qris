@@ -45,7 +45,7 @@ func (u *Data) Parse(codeString string) (*entities.Data, error) {
 
 func (uc *Data) ModifyContent(data *entities.Data, content string) *entities.Data {
 	length := len(content)
-	if length < 1 {
+	if length == 0 {
 		return &entities.Data{}
 	}
 

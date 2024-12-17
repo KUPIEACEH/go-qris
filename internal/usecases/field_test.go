@@ -19,14 +19,14 @@ func TestNewField(t *testing.T) {
 			fields: Field{
 				acquirerUsecase:      &Acquirer{},
 				switchingUsecase:     &Switching{},
-				qrisTags:             QRISTags{},
-				qrisCategoryContents: QRISCategoryContents{},
+				qrisTags:             &QRISTags{},
+				qrisCategoryContents: &QRISCategoryContents{},
 			},
 			want: &Field{
 				acquirerUsecase:      &Acquirer{},
 				switchingUsecase:     &Switching{},
-				qrisTags:             QRISTags{},
-				qrisCategoryContents: QRISCategoryContents{},
+				qrisTags:             &QRISTags{},
+				qrisCategoryContents: &QRISCategoryContents{},
 			},
 		},
 		{
@@ -34,7 +34,7 @@ func TestNewField(t *testing.T) {
 			fields: Field{
 				acquirerUsecase:  &Acquirer{},
 				switchingUsecase: &Switching{},
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -53,7 +53,7 @@ func TestNewField(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
@@ -61,7 +61,7 @@ func TestNewField(t *testing.T) {
 			want: &Field{
 				acquirerUsecase:  &Acquirer{},
 				switchingUsecase: &Switching{},
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -80,7 +80,7 @@ func TestNewField(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
@@ -327,7 +327,7 @@ func TestFieldAssign(t *testing.T) {
 			uc := &Field{
 				acquirerUsecase:  test.fields.acquirerUsecase,
 				switchingUsecase: test.fields.switchingUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -346,7 +346,7 @@ func TestFieldAssign(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
@@ -360,7 +360,7 @@ func TestFieldAssign(t *testing.T) {
 	}
 }
 
-func TestFieldValidate(t *testing.T) {
+func TestFieldIsValid(t *testing.T) {
 	type args struct {
 		qris *entities.QRIS
 	}
@@ -508,7 +508,7 @@ func TestFieldValidate(t *testing.T) {
 			uc := &Field{
 				acquirerUsecase:  test.fields.acquirerUsecase,
 				switchingUsecase: test.fields.switchingUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -527,16 +527,16 @@ func TestFieldValidate(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
 			}
 
 			var got []string
-			uc.Validate(test.args.qris, &got)
+			uc.IsValid(test.args.qris, &got)
 			if !reflect.DeepEqual(&got, test.want) {
-				t.Errorf(expectedButGotMessage, "Validate()", *test.want, got)
+				t.Errorf(expectedButGotMessage, "IsValid()", *test.want, got)
 			}
 		})
 	}

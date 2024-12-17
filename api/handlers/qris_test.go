@@ -141,7 +141,7 @@ func TestQRISParse(t *testing.T) {
 	}
 }
 
-func TestQRISToDynamic(t *testing.T) {
+func TestQRISConvert(t *testing.T) {
 	type args struct {
 		requestBody string
 	}
@@ -168,10 +168,10 @@ func TestQRISToDynamic(t *testing.T) {
 			},
 		},
 		{
-			name: "Error: h.qrisController.ToDynamic()",
+			name: "Error: h.qrisController.Convert()",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ToDynamicFunc: func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
 						return "", "", fmt.Errorf("invalid QR string"), nil
 					},
 				},
@@ -188,7 +188,7 @@ func TestQRISToDynamic(t *testing.T) {
 			name: "Success",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ToDynamicFunc: func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
+					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
 						return "QR Dynamic String", "QR Dynamic Code", nil, nil
 					},
 				},
@@ -209,7 +209,7 @@ func TestQRISToDynamic(t *testing.T) {
 
 			gin.SetMode(gin.TestMode)
 			router := gin.Default()
-			router.POST("/", handler.ToDynamic)
+			router.POST("/", handler.Convert)
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(test.args.requestBody))
 			req.Header.Set(testHeaderContentType, testHeaderContentTypeValue)
@@ -227,7 +227,7 @@ func TestQRISToDynamic(t *testing.T) {
 	}
 }
 
-func TestQRISValidate(t *testing.T) {
+func TestQRISIsValid(t *testing.T) {
 	type args struct {
 		requestBody string
 	}
@@ -254,10 +254,10 @@ func TestQRISValidate(t *testing.T) {
 			},
 		},
 		{
-			name: "Error: h.qrisController.Validate()",
+			name: "Error: h.qrisController.IsValid()",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ValidateFunc: func(qrisString string) (error, *[]string) {
+					IsValidFunc: func(qrisString string) (error, *[]string) {
 						return fmt.Errorf("invalid CRC16-CCITT code"), nil
 					},
 				},
@@ -274,7 +274,7 @@ func TestQRISValidate(t *testing.T) {
 			name: "Success",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ValidateFunc: func(qrisString string) (error, *[]string) {
+					IsValidFunc: func(qrisString string) (error, *[]string) {
 						return nil, nil
 					},
 				},
@@ -295,7 +295,7 @@ func TestQRISValidate(t *testing.T) {
 
 			gin.SetMode(gin.TestMode)
 			router := gin.Default()
-			router.POST("/", handler.Validate)
+			router.POST("/", handler.IsValid)
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(test.args.requestBody))
 			req.Header.Set(testHeaderContentType, testHeaderContentTypeValue)

@@ -20,17 +20,17 @@ func TestNewQRIS(t *testing.T) {
 				dataUsecase:                    &Data{},
 				fieldUsecase:                   &Field{},
 				crc16CCITTUsecase:              &CRC16CCITT{},
-				qrisTags:                       QRISTags{},
-				qrisCategoryContents:           QRISCategoryContents{},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{},
+				qrisTags:                       &QRISTags{},
+				qrisCategoryContents:           &QRISCategoryContents{},
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{},
 			},
 			want: &QRIS{
 				dataUsecase:                    &Data{},
 				fieldUsecase:                   &Field{},
 				crc16CCITTUsecase:              &CRC16CCITT{},
-				qrisTags:                       QRISTags{},
-				qrisCategoryContents:           QRISCategoryContents{},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{},
+				qrisTags:                       &QRISTags{},
+				qrisCategoryContents:           &QRISCategoryContents{},
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{},
 			},
 		},
 		{
@@ -39,7 +39,7 @@ func TestNewQRIS(t *testing.T) {
 				dataUsecase:       &Data{},
 				fieldUsecase:      &Field{},
 				crc16CCITTUsecase: &CRC16CCITT{},
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -55,11 +55,11 @@ func TestNewQRIS(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
@@ -68,7 +68,7 @@ func TestNewQRIS(t *testing.T) {
 				dataUsecase:       &Data{},
 				fieldUsecase:      &Field{},
 				crc16CCITTUsecase: &CRC16CCITT{},
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -84,11 +84,11 @@ func TestNewQRIS(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
@@ -164,7 +164,7 @@ func TestQRISParse(t *testing.T) {
 			wantError: fmt.Errorf("invalid extract acquirer for content %s", testQRIS.Acquirer.Content),
 		},
 		{
-			name: "Error: uc.fieldUsecase.Validate()",
+			name: "Error: uc.fieldUsecase.IsValid()",
 			fields: QRIS{
 				dataUsecase: &mockDataUsecase{
 					ParseFunc: func(codeString string) (*entities.Data, error) {
@@ -178,7 +178,7 @@ func TestQRISParse(t *testing.T) {
 						}
 						return nil
 					},
-					ValidateFunc: func(qris *entities.QRIS, errs *[]string) {
+					IsValidFunc: func(qris *entities.QRIS, errs *[]string) {
 						*errs = append(*errs, "Category tag is missing")
 						return
 					},
@@ -223,7 +223,7 @@ func TestQRISParse(t *testing.T) {
 				dataUsecase:       test.fields.dataUsecase,
 				fieldUsecase:      test.fields.fieldUsecase,
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -240,11 +240,11 @@ func TestQRISParse(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
@@ -261,7 +261,7 @@ func TestQRISParse(t *testing.T) {
 	}
 }
 
-func TestQRISToDynamic(t *testing.T) {
+func TestQRISModify(t *testing.T) {
 	var (
 		testMerchantCityContent       = "New Merchant City"
 		testMerchantPostalCodeContent = "55181"
@@ -288,7 +288,7 @@ func TestQRISToDynamic(t *testing.T) {
 		name   string
 		fields QRIS
 		args   args
-		want   *entities.QRISDynamic
+		want   *entities.QRIS
 	}{
 		{
 			name: "Success: Fixed Payment Fee",
@@ -300,22 +300,24 @@ func TestQRISToDynamic(t *testing.T) {
 				},
 				dataUsecase: &mockDataUsecase{
 					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						length := len(content)
+						var tag string
 						switch extractData.Tag {
+						case testQRIS.PaymentAmount.Tag:
+							tag = testQRIS.PaymentAmount.Tag
 						case testQRIS.MerchantCity.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantCity.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantCity.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantCity.Tag
 						case testQRIS.MerchantPostalCode.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantPostalCode.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantPostalCode.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantPostalCode.Tag
+						case testQRIS.CRCCode.Tag:
+							tag = testQRIS.CRCCode.Tag
 						default:
 							return &entities.Data{}
+						}
+
+						return &entities.Data{
+							Tag:     tag,
+							Content: content,
+							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
 						}
 					},
 				},
@@ -325,7 +327,7 @@ func TestQRISToDynamic(t *testing.T) {
 				paymentFeeCategory: "FIXED",
 				paymentFee:         666,
 			},
-			want: &entities.QRISDynamic{
+			want: &entities.QRIS{
 				Version: testQRIS.Version,
 				Category: entities.Data{
 					Tag:     testCategoryTag,
@@ -373,22 +375,24 @@ func TestQRISToDynamic(t *testing.T) {
 				},
 				dataUsecase: &mockDataUsecase{
 					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						length := len(content)
+						var tag string
 						switch extractData.Tag {
+						case testQRIS.PaymentAmount.Tag:
+							tag = testQRIS.PaymentAmount.Tag
 						case testQRIS.MerchantCity.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantCity.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantCity.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantCity.Tag
 						case testQRIS.MerchantPostalCode.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantPostalCode.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantPostalCode.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantPostalCode.Tag
+						case testQRIS.CRCCode.Tag:
+							tag = testQRIS.CRCCode.Tag
 						default:
 							return &entities.Data{}
+						}
+
+						return &entities.Data{
+							Tag:     tag,
+							Content: content,
+							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
 						}
 					},
 				},
@@ -398,7 +402,7 @@ func TestQRISToDynamic(t *testing.T) {
 				paymentFeeCategory: "PERCENT",
 				paymentFee:         25,
 			},
-			want: &entities.QRISDynamic{
+			want: &entities.QRIS{
 				Version: testQRIS.Version,
 				Category: entities.Data{
 					Tag:     testCategoryTag,
@@ -446,22 +450,24 @@ func TestQRISToDynamic(t *testing.T) {
 				},
 				dataUsecase: &mockDataUsecase{
 					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						length := len(content)
+						var tag string
 						switch extractData.Tag {
+						case testQRIS.PaymentAmount.Tag:
+							tag = testQRIS.PaymentAmount.Tag
 						case testQRIS.MerchantCity.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantCity.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantCity.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantCity.Tag
 						case testQRIS.MerchantPostalCode.Tag:
-							return &entities.Data{
-								Tag:     testQRIS.MerchantPostalCode.Tag,
-								Content: content,
-								Data:    testQRIS.MerchantPostalCode.Tag + fmt.Sprintf("%02d", length) + content,
-							}
+							tag = testQRIS.MerchantPostalCode.Tag
+						case testQRIS.CRCCode.Tag:
+							tag = testQRIS.CRCCode.Tag
 						default:
 							return &entities.Data{}
+						}
+
+						return &entities.Data{
+							Tag:     tag,
+							Content: content,
+							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
 						}
 					},
 				},
@@ -471,7 +477,7 @@ func TestQRISToDynamic(t *testing.T) {
 				paymentFeeCategory: "UNDEFINED",
 				paymentFee:         1337,
 			},
-			want: &entities.QRISDynamic{
+			want: &entities.QRIS{
 				Version: testQRIS.Version,
 				Category: entities.Data{
 					Tag:     testCategoryTag,
@@ -517,7 +523,7 @@ func TestQRISToDynamic(t *testing.T) {
 				dataUsecase:       test.fields.dataUsecase,
 				fieldUsecase:      test.fields.fieldUsecase,
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -536,30 +542,30 @@ func TestQRISToDynamic(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
 			}
 
-			got := uc.ToDynamic(&test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, test.args.paymentFeeCategory, test.args.paymentFee)
+			got := uc.Modify(&test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, test.args.paymentFeeCategory, test.args.paymentFee)
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "ToDynamic()", test.want, got)
+				t.Errorf(expectedButGotMessage, "Modify()", test.want, got)
 			}
 		})
 	}
 }
 
-func TestQRISDynamicToString(t *testing.T) {
+func TestQRISToString(t *testing.T) {
 	type args struct {
-		qrisDynamic *entities.QRISDynamic
+		qris *entities.QRIS
 	}
 
-	testQRISDynamic := &entities.QRISDynamic{
+	testQRIS := &entities.QRIS{
 		Version: testQRIS.Version,
 		Category: entities.Data{
 			Tag:     testCategoryTag,
@@ -607,23 +613,23 @@ func TestQRISDynamicToString(t *testing.T) {
 			name:   "Success",
 			fields: QRIS{},
 			args: args{
-				qrisDynamic: testQRISDynamic,
+				qris: testQRIS,
 			},
-			want: testQRISDynamic.Version.Data +
-				testQRISDynamic.Category.Data +
-				testQRISDynamic.Acquirer.Data +
-				testQRISDynamic.Switching.Data +
-				testQRISDynamic.MerchantCategoryCode.Data +
-				testQRISDynamic.CurrencyCode.Data +
-				testQRISDynamic.PaymentAmount.Data +
-				testQRISDynamic.PaymentFeeCategory.Data +
-				testQRISDynamic.PaymentFee.Data +
-				testQRISDynamic.CountryCode.Data +
-				testQRISDynamic.MerchantName.Data +
-				testQRISDynamic.MerchantCity.Data +
-				testQRISDynamic.MerchantPostalCode.Data +
-				testQRISDynamic.AdditionalInformation.Data +
-				testQRISDynamic.CRCCode.Data,
+			want: testQRIS.Version.Data +
+				testQRIS.Category.Data +
+				testQRIS.Acquirer.Data +
+				testQRIS.Switching.Data +
+				testQRIS.MerchantCategoryCode.Data +
+				testQRIS.CurrencyCode.Data +
+				testQRIS.PaymentAmount.Data +
+				testQRIS.PaymentFeeCategory.Data +
+				testQRIS.PaymentFee.Data +
+				testQRIS.CountryCode.Data +
+				testQRIS.MerchantName.Data +
+				testQRIS.MerchantCity.Data +
+				testQRIS.MerchantPostalCode.Data +
+				testQRIS.AdditionalInformation.Data +
+				testQRIS.CRCCode.Data,
 		},
 	}
 
@@ -633,7 +639,7 @@ func TestQRISDynamicToString(t *testing.T) {
 				dataUsecase:       test.fields.dataUsecase,
 				fieldUsecase:      test.fields.fieldUsecase,
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -649,25 +655,25 @@ func TestQRISDynamicToString(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
 			}
 
-			got := uc.DynamicToString(test.args.qrisDynamic)
+			got := uc.ToString(test.args.qris)
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "DynamicToString()", test.want, got)
+				t.Errorf(expectedButGotMessage, "ToString()", test.want, got)
 			}
 		})
 	}
 }
 
-func TestQRISValidate(t *testing.T) {
+func TestQRISIsValid(t *testing.T) {
 	type args struct {
 		qris *entities.QRIS
 	}
@@ -714,7 +720,7 @@ func TestQRISValidate(t *testing.T) {
 				dataUsecase:       test.fields.dataUsecase,
 				fieldUsecase:      test.fields.fieldUsecase,
 				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
-				qrisTags: QRISTags{
+				qrisTags: &QRISTags{
 					VersionTag:               testVersionTag,
 					CategoryTag:              testCategoryTag,
 					AcquirerTag:              testAcquirerTag,
@@ -730,19 +736,19 @@ func TestQRISValidate(t *testing.T) {
 					AdditionalInformationTag: testAdditionalInformationTag,
 					CRCCodeTag:               testCRCCodeTag,
 				},
-				qrisCategoryContents: QRISCategoryContents{
+				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
 					Dynamic: testCategoryDynamicContent,
 				},
-				qrisPaymentFeeCategoryContents: QRISPaymentFeeCategoryContents{
+				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{
 					Fixed:   testPaymentFeeCategoryFixedContent,
 					Percent: testPaymentFeeCategoryPercentContent,
 				},
 			}
 
-			got := uc.Validate(test.args.qris)
+			got := uc.IsValid(test.args.qris)
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "Validate()", test.want, got)
+				t.Errorf(expectedButGotMessage, "IsValid()", test.want, got)
 			}
 		})
 	}

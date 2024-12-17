@@ -15,9 +15,9 @@ var (
 )
 
 type mockQRISController struct {
-	ParseFunc     func(qrisString string) (*entities.QRIS, error, *[]string)
-	ToDynamicFunc func(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string)
-	ValidateFunc  func(qrisString string) (error, *[]string)
+	ParseFunc   func(qrisString string) (*entities.QRIS, error, *[]string)
+	ConvertFunc func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string)
+	IsValidFunc func(qrisString string) (error, *[]string)
 }
 
 func (m *mockQRISController) Parse(qrisString string) (*entities.QRIS, error, *[]string) {
@@ -27,16 +27,16 @@ func (m *mockQRISController) Parse(qrisString string) (*entities.QRIS, error, *[
 	return nil, nil, nil
 }
 
-func (m *mockQRISController) ToDynamic(qrisString string, merchantCity string, merchantPostalCode string, paymentAmount uint32, paymentFeeCategory string, paymentFee uint32) (string, string, error, *[]string) {
-	if m.ToDynamicFunc != nil {
-		return m.ToDynamicFunc(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+func (m *mockQRISController) Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
+	if m.ConvertFunc != nil {
+		return m.ConvertFunc(qrisString, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
 	}
 	return "", "", nil, nil
 }
 
-func (m *mockQRISController) Validate(qrisString string) (error, *[]string) {
-	if m.ValidateFunc != nil {
-		return m.ValidateFunc(qrisString)
+func (m *mockQRISController) IsValid(qrisString string) (error, *[]string) {
+	if m.IsValidFunc != nil {
+		return m.IsValidFunc(qrisString)
 	}
 	return nil, nil
 }

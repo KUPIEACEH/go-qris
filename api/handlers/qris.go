@@ -14,8 +14,8 @@ type QRIS struct {
 
 type QRISInterface interface {
 	Parse(c *gin.Context)
-	ToDynamic(c *gin.Context)
-	Validate(c *gin.Context)
+	Convert(c *gin.Context)
+	IsValid(c *gin.Context)
 }
 
 type ParseRequest struct {
@@ -69,7 +69,7 @@ func (h *QRIS) Parse(c *gin.Context) {
 	})
 }
 
-func (h *QRIS) ToDynamic(c *gin.Context) {
+func (h *QRIS) Convert(c *gin.Context) {
 	var req ConverterRequest
 
 	if err := c.BindJSON(&req); err != nil {
@@ -82,7 +82,7 @@ func (h *QRIS) ToDynamic(c *gin.Context) {
 		return
 	}
 
-	qrString, qrCode, err, errs := h.qrisController.ToDynamic(req.QRString, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee)
+	qrString, qrCode, err, errs := h.qrisController.Convert(req.QRString, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
@@ -107,7 +107,7 @@ func (h *QRIS) ToDynamic(c *gin.Context) {
 	})
 }
 
-func (h *QRIS) Validate(c *gin.Context) {
+func (h *QRIS) IsValid(c *gin.Context) {
 	var req ParseRequest
 
 	if err := c.BindJSON(&req); err != nil {
@@ -120,7 +120,7 @@ func (h *QRIS) Validate(c *gin.Context) {
 		return
 	}
 
-	err, errs := h.qrisController.Validate(req.QRString)
+	err, errs := h.qrisController.IsValid(req.QRString)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,

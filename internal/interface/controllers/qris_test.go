@@ -144,7 +144,7 @@ func TestQRISParse(t *testing.T) {
 	}
 }
 
-func TestQRISToDynamic(t *testing.T) {
+func TestQRISConvert(t *testing.T) {
 	type args struct {
 		qrString           string
 		merchantCity       string
@@ -229,8 +229,8 @@ func TestQRISToDynamic(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ToDynamicFunc: func(qris *entities.QRIS, merchantCity, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic {
-						return &entities.QRISDynamic{
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+						return &entities.QRIS{
 							Version: entities.Data{
 								Tag:     "",
 								Content: "01",
@@ -238,8 +238,8 @@ func TestQRISToDynamic(t *testing.T) {
 							},
 						}
 					},
-					DynamicToStringFunc: func(qrisDynamic *entities.QRISDynamic) string {
-						return testQRISDynamicString
+					ToStringFunc: func(qris *entities.QRIS) string {
+						return testQRISModifiedString
 					},
 				},
 				qrCodeUtil: &mockQRCodeUtil{
@@ -257,7 +257,7 @@ func TestQRISToDynamic(t *testing.T) {
 				paymentFee:         testPaymentFee,
 			},
 			want: want{
-				qrString: testQRISDynamicString,
+				qrString: testQRISModifiedString,
 				qrCode:   "",
 			},
 			wantError: fmt.Errorf("unsupported QR code format"),
@@ -283,7 +283,7 @@ func TestQRISToDynamic(t *testing.T) {
 				},
 				qrCodeUtil: &mockQRCodeUtil{
 					StringToImageBase64Func: func(qrString string, qrCodeSize int) (string, error) {
-						return "data:image/png;base64,QRIS Dynamic Code Image Base64", nil
+						return "data:image/png;base64,QRIS Modified Code Image Base64", nil
 					},
 				},
 				qrisUsecase: &mockQRISUsecase{
@@ -296,8 +296,8 @@ func TestQRISToDynamic(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ToDynamicFunc: func(qris *entities.QRIS, merchantCity, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRISDynamic {
-						return &entities.QRISDynamic{
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+						return &entities.QRIS{
 							Version: entities.Data{
 								Tag:     "",
 								Content: "01",
@@ -305,8 +305,8 @@ func TestQRISToDynamic(t *testing.T) {
 							},
 						}
 					},
-					DynamicToStringFunc: func(qrisDynamic *entities.QRISDynamic) string {
-						return testQRISDynamicString
+					ToStringFunc: func(qris *entities.QRIS) string {
+						return testQRISModifiedString
 					},
 				},
 				qrCodeSize: 125,
@@ -320,14 +320,14 @@ func TestQRISToDynamic(t *testing.T) {
 				paymentFee:         testPaymentFee,
 			},
 			want: want{
-				qrString: testQRISDynamicString,
-				qrCode:   "data:image/png;base64,QRIS Dynamic Code Image Base64",
+				qrString: testQRISModifiedString,
+				qrCode:   "data:image/png;base64,QRIS Modified Code Image Base64",
 			},
 			wantError: nil,
 		},
 	}
 
-	funcName := "ToDynamic()"
+	funcName := "Convert()"
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := &QRIS{
@@ -337,7 +337,7 @@ func TestQRISToDynamic(t *testing.T) {
 				qrCodeSize:  test.fields.qrCodeSize,
 			}
 
-			got1, got2, err, _ := c.ToDynamic(test.args.qrString, test.args.merchantCity, test.args.merchantPostalCode, test.args.paymentAmount, test.args.paymentFeeCategory, test.args.paymentFee)
+			got1, got2, err, _ := c.Convert(test.args.qrString, test.args.merchantCity, test.args.merchantPostalCode, test.args.paymentAmount, test.args.paymentFeeCategory, test.args.paymentFee)
 			if err != nil && err.Error() != test.wantError.Error() {
 				t.Errorf(expectedErrorButGotMessage, funcName, test.wantError, err)
 			}
@@ -351,7 +351,7 @@ func TestQRISToDynamic(t *testing.T) {
 	}
 }
 
-func TestQRISValidate(t *testing.T) {
+func TestQRISIsValid(t *testing.T) {
 	type args struct {
 		qrString string
 	}
@@ -382,7 +382,7 @@ func TestQRISValidate(t *testing.T) {
 			wantError: fmt.Errorf(testErrMessageInvalidFormatCode),
 		},
 		{
-			name: "Success: c.qrisUsecase.Validate() Is False",
+			name: "Success: c.qrisUsecase.IsValid() Is False",
 			fields: QRIS{
 				inputUtil: &mockInputUtil{
 					SanitizeFunc: func(input string) string {
@@ -399,7 +399,7 @@ func TestQRISValidate(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ValidateFunc: func(qris *entities.QRIS) bool {
+					IsValidFunc: func(qris *entities.QRIS) bool {
 						return false
 					},
 				},
@@ -427,7 +427,7 @@ func TestQRISValidate(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ValidateFunc: func(qris *entities.QRIS) bool {
+					IsValidFunc: func(qris *entities.QRIS) bool {
 						return true
 					},
 				},
@@ -448,9 +448,9 @@ func TestQRISValidate(t *testing.T) {
 				qrCodeSize:  test.fields.qrCodeSize,
 			}
 
-			err, _ := c.Validate(test.args.qrString)
+			err, _ := c.IsValid(test.args.qrString)
 			if err != nil && err.Error() != test.wantError.Error() {
-				t.Errorf(expectedErrorButGotMessage, "Validate()", test.wantError, err)
+				t.Errorf(expectedErrorButGotMessage, "IsValid()", test.wantError, err)
 			}
 		})
 	}

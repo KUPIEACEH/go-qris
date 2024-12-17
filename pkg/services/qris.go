@@ -11,91 +11,57 @@ type QRIS struct {
 	qrisUsecase       usecases.QRISInterface
 }
 
-type Schema struct {
-	VersionTag               string
-	CategoryTag              string
-	AcquirerTag              string
-	AcquirerBankTransferTag  string
-	SwitchingTag             string
-	MerchantCategoryCodeTag  string
-	CurrencyCodeTag          string
-	PaymentAmountTag         string
-	PaymentFeeCategoryTag    string
-	PaymentFeeFixedTag       string
-	PaymentFeePercentTag     string
-	CountryCodeTag           string
-	MerchantNameTag          string
-	MerchantCityTag          string
-	MerchantPostalCodeTag    string
-	AdditionalInformationTag string
-	CRCCodeTag               string
-
-	CategoryStaticContent  string
-	CategoryDynamicContent string
-
-	AcquirerDetailSiteTag       string
-	AcquirerDetailMPANTag       string
-	AcquirerDetailTerminalIDTag string
-	AcquirerDetailCategoryTag   string
-
-	SwitchingDetailSiteTag     string
-	SwitchingDetailNMIDTag     string
-	SwitchingDetailCategoryTag string
-
-	PaymentFeeCategoryFixedContent   string
-	PaymentFeeCategoryPercentContent string
-}
-
 type QRISInterface interface {
 	Parse(qrisString string) (*models.QRIS, error, *[]string)
-	Validate(qris *models.QRIS) bool
-	ToDynamic(qris *models.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *models.QRISDynamic
+	IsValid(qris *models.QRIS) bool
+	Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS
 	ToString(qris *models.QRIS) string
-	Convert(qrisString string, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, error, *[]string)
+	Convert(qrisString string, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string)
 }
 
-func NewQRIS(schema *Schema) QRISInterface {
-	defineValue := func(value string, defaultValue string) string {
-		if value == "" {
-			return defaultValue
-		}
-		return value
+func NewQRIS() QRISInterface {
+	qrisTags := &usecases.QRISTags{
+		VersionTag:               config.VersionTag,
+		CategoryTag:              config.CategoryTag,
+		AcquirerTag:              config.AcquirerTag,
+		AcquirerBankTransferTag:  config.AcquirerBankTransferTag,
+		SwitchingTag:             config.SwitchingTag,
+		MerchantCategoryCodeTag:  config.MerchantCategoryCodeTag,
+		CurrencyCodeTag:          config.CurrencyCodeTag,
+		PaymentAmountTag:         config.PaymentAmountTag,
+		PaymentFeeCategoryTag:    config.PaymentFeeCategoryTag,
+		PaymentFeeFixedTag:       config.PaymentFeeFixedTag,
+		PaymentFeePercentTag:     config.PaymentFeePercentTag,
+		CountryCodeTag:           config.CountryCodeTag,
+		MerchantNameTag:          config.MerchantNameTag,
+		MerchantCityTag:          config.MerchantCityTag,
+		MerchantPostalCodeTag:    config.MerchantPostalCodeTag,
+		AdditionalInformationTag: config.AdditionalInformationTag,
+		CRCCodeTag:               config.CRCCodeTag,
 	}
-
-	if schema == nil {
-		schema = &Schema{}
+	qrisCategoryContents := &usecases.QRISCategoryContents{
+		Static:  config.CategoryStaticContent,
+		Dynamic: config.CategoryDynamicContent,
 	}
-	qrisTags := usecases.QRISTags{
-		VersionTag:               defineValue(schema.VersionTag, config.VersionTag),
-		CategoryTag:              defineValue(schema.CategoryTag, config.CategoryTag),
-		AcquirerTag:              defineValue(schema.AcquirerTag, config.AcquirerTag),
-		AcquirerBankTransferTag:  defineValue(schema.AcquirerBankTransferTag, config.AcquirerBankTransferTag),
-		SwitchingTag:             defineValue(schema.SwitchingTag, config.SwitchingTag),
-		MerchantCategoryCodeTag:  defineValue(schema.MerchantCategoryCodeTag, config.MerchantCategoryCodeTag),
-		CurrencyCodeTag:          defineValue(schema.CurrencyCodeTag, config.CurrencyCodeTag),
-		PaymentAmountTag:         defineValue(schema.PaymentAmountTag, config.PaymentAmountTag),
-		PaymentFeeCategoryTag:    defineValue(schema.PaymentFeeCategoryTag, config.PaymentFeeCategoryTag),
-		PaymentFeeFixedTag:       defineValue(schema.PaymentFeeFixedTag, config.PaymentFeeFixedTag),
-		PaymentFeePercentTag:     defineValue(schema.PaymentFeePercentTag, config.PaymentFeePercentTag),
-		CountryCodeTag:           defineValue(schema.CountryCodeTag, config.CountryCodeTag),
-		MerchantNameTag:          defineValue(schema.MerchantNameTag, config.MerchantNameTag),
-		MerchantCityTag:          defineValue(schema.MerchantCityTag, config.MerchantCityTag),
-		MerchantPostalCodeTag:    defineValue(schema.MerchantPostalCodeTag, config.MerchantPostalCodeTag),
-		AdditionalInformationTag: defineValue(schema.AdditionalInformationTag, config.AdditionalInformationTag),
-		CRCCodeTag:               defineValue(schema.CRCCodeTag, config.CRCCodeTag),
-	}
-	qrisCategoryContents := usecases.QRISCategoryContents{
-		Static:  defineValue(schema.CategoryStaticContent, config.CategoryStaticContent),
-		Dynamic: defineValue(schema.CategoryDynamicContent, config.CategoryDynamicContent),
-	}
-	qrisPaymentFeeCategoryContents := usecases.QRISPaymentFeeCategoryContents{
-		Fixed:   defineValue(schema.PaymentFeeCategoryFixedContent, config.PaymentFeeCategoryFixedContent),
-		Percent: defineValue(schema.PaymentFeeCategoryPercentContent, config.PaymentFeeCategoryPercentContent),
+	qrisPaymentFeeCategoryContents := &usecases.QRISPaymentFeeCategoryContents{
+		Fixed:   config.PaymentFeeCategoryFixedContent,
+		Percent: config.PaymentFeeCategoryPercentContent,
 	}
 
 	dataUsecase := usecases.NewData()
-	acquirerUsecase := usecases.NewAcquirer(dataUsecase, schema.AcquirerDetailSiteTag, schema.AcquirerDetailMPANTag, schema.AcquirerDetailTerminalIDTag, schema.AcquirerDetailCategoryTag)
-	switchingUsecase := usecases.NewSwitching(dataUsecase, schema.SwitchingDetailSiteTag, schema.SwitchingDetailNMIDTag, schema.SwitchingDetailCategoryTag)
+	acquirerUsecase := usecases.NewAcquirer(
+		dataUsecase,
+		config.AcquirerDetailSiteTag,
+		config.AcquirerDetailMPANTag,
+		config.AcquirerDetailTerminalIDTag,
+		config.AcquirerDetailCategoryTag,
+	)
+	switchingUsecase := usecases.NewSwitching(
+		dataUsecase,
+		config.SwitchingDetailSiteTag,
+		config.SwitchingDetailNMIDTag,
+		config.SwitchingDetailCategoryTag,
+	)
 	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, qrisTags, qrisCategoryContents)
 	crc16CCITTUsecase := usecases.NewCRC16CCITT()
 	qrisUsecase := usecases.NewQRIS(
@@ -122,17 +88,17 @@ func (s *QRIS) Parse(qrisString string) (*models.QRIS, error, *[]string) {
 	return mapQRISEntityToModel(qris), nil, nil
 }
 
-func (s *QRIS) Validate(qris *models.QRIS) bool {
-	internalQRIS := mapQRISModelToEntity(qris)
+func (s *QRIS) IsValid(qris *models.QRIS) bool {
+	qrisEntity := mapQRISModelToEntity(qris)
 
-	return s.qrisUsecase.Validate(internalQRIS)
+	return s.qrisUsecase.IsValid(qrisEntity)
 }
 
-func (s *QRIS) ToDynamic(qris *models.QRIS, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *models.QRISDynamic {
-	internalQRIS := mapQRISModelToEntity(qris)
-	qrisDynamic := s.qrisUsecase.ToDynamic(internalQRIS, merchantCity, merchantPostalCode, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+func (s *QRIS) Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS {
+	qrisEntity := mapQRISModelToEntity(qris)
+	qrisModel := s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCode, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
 
-	return mapQRISDynamicEntityToModel(qrisDynamic)
+	return mapQRISEntityToModel(qrisModel)
 }
 
 func (s *QRIS) ToString(qris *models.QRIS) string {
@@ -155,11 +121,12 @@ func (s *QRIS) ToString(qris *models.QRIS) string {
 	return qrisString + s.crc16CCITTUsecase.GenerateCode(qrisString)
 }
 
-func (s *QRIS) Convert(qrisString string, merchantCity string, merchantPostalCode string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, error, *[]string) {
-	qris, err, errs := s.qrisUsecase.Parse(qrisString)
+func (s *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) (string, error, *[]string) {
+	qrisEntity, err, errs := s.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return "", err, errs
 	}
+	qrisEntity = s.qrisUsecase.Modify(qrisEntity, merchantCityValue, merchantPostalCode, uint32(paymentAmountValue), paymentFeeCategoryValue, uint32(paymentFeeValue))
 
-	return s.qrisUsecase.DynamicToString(s.qrisUsecase.ToDynamic(qris, merchantCity, merchantPostalCode, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)), nil, nil
+	return s.qrisUsecase.ToString(qrisEntity), nil, nil
 }

@@ -227,8 +227,8 @@ func (m *mockDataUsecase) ModifyContent(data *entities.Data, content string) *en
 }
 
 type mockFieldUsecase struct {
-	AssignFunc   func(qris *entities.QRIS, data *entities.Data) error
-	ValidateFunc func(qris *entities.QRIS, errs *[]string)
+	AssignFunc  func(qris *entities.QRIS, data *entities.Data) error
+	IsValidFunc func(qris *entities.QRIS, errs *[]string)
 }
 
 func (m *mockFieldUsecase) Assign(qris *entities.QRIS, data *entities.Data) error {
@@ -238,9 +238,9 @@ func (m *mockFieldUsecase) Assign(qris *entities.QRIS, data *entities.Data) erro
 	return nil
 }
 
-func (m *mockFieldUsecase) Validate(qris *entities.QRIS, errs *[]string) {
-	if m.ValidateFunc != nil {
-		m.ValidateFunc(qris, errs)
+func (m *mockFieldUsecase) IsValid(qris *entities.QRIS, errs *[]string) {
+	if m.IsValidFunc != nil {
+		m.IsValidFunc(qris, errs)
 		return
 	}
 	return
