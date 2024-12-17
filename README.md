@@ -127,7 +127,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
       `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
 
       ```go
-      qris, err, errs := qrisService.IsValid(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+      qris := qrisService.Modify(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
       ```
 
     - **Convert QRIS to String**
@@ -158,7 +158,7 @@ Use the configuration files in the `deployments` folder to set up deployment in 
 
 ## 🔥 API Endpoints
 
-To learn more about the available endpoints, you can refer to [Go-QRIS Postman Documentation](https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7) 🦸
+To learn more about the available endpoints, you can refer to [Postman Documentation](https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7) 🦸
 
 1.  **Parse QRIS**
 
