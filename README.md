@@ -1,6 +1,6 @@
-# Go QRIS
+# Go-QRIS
 
-Go QRIS is a Go-based project designed to convert QRIS codes into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR codes have limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go QRIS simplifies the process of generating dynamic QR codes, improving payment flexibility for businesses and providing a seamless experience for customers.
+Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR code have limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go-QRIS simplifies the process of generating dynamic QRIS code, improving payment flexibility for businesses and providing a seamless experience for customers.
 
 ## 📝 Directory Structure
 
@@ -64,11 +64,79 @@ Go QRIS is a Go-based project designed to convert QRIS codes into dynamic ones. 
 
     ```bash
     docker build -f ./deployments/Dockerfile -t go-qris .
-    docker run --name go-qris -e APP_ENV=development -e QR_CODE_SIZE=200 -p 8080:1337 go-qris
+    docker run --name go-qris -e APP_ENV=development -e QR_CODE_SIZE=256 -p 8080:1337 go-qris
     ```
 
     Alternatively, open the following url in your browser:
     [https://hub.docker.com/r/azisalvriyanto/go-qris](https://hub.docker.com/r/azisalvriyanto/go-qris)
+
+3.  Implement into your own awesome project:
+
+    ```go
+    package main
+
+    import (
+        "fmt"
+
+        "github.com/fyvri/go-qris/pkg/services"
+    )
+
+    func main() {
+        qrisString := "000201010211y0ur4w3soMEQr15STriN6"
+        merchantCity := "Kota Yogyakarta" // optional
+        merchantPostalCode := "55000"     // optional
+        paymentAmount := 1337
+        paymentFeeCategory := "FIXED" // optional, value: FIXED or PERCENT
+        paymentFee := 666             // optional based on paymentFeeCategory value
+
+        qrisService := services.NewQRIS()
+        qrisString, err, errs := qrisService.Convert(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+        if err != nil {
+            fmt.Println("Failed :", err)
+            if errs != nil {
+                for _, err := range *errs {
+                    fmt.Println("         -", err)
+                }
+            }
+            return
+        }
+        fmt.Println("Success:", qrisString)
+    }
+    ```
+
+    Here are additional functions you can use to interact with QRIS:
+
+    - **Parses QRIS**
+
+      `Parse(qrisString string) (*models.QRIS, error, *[]string)`
+
+      ```go
+        qris, err, errs := qrisService.Parse(qrisString)
+      ```
+
+    - **Validate QRIS**
+
+      `IsValid(qris *models.QRIS) bool`
+
+      ```go
+        isValid := qrisService.IsValid(qris)
+      ```
+
+    - **Modify QRIS**
+
+      `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCode string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
+
+      ```go
+        qris, err, errs := qrisService.IsValid(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+      ```
+
+    - **Convert QRIS to String**
+
+      `ToString(qris *models.QRIS) string`
+
+      ```go
+        qrisString := qrisService.ToString(qris)
+      ```
 
 ## 🧪 Testing
 
@@ -247,10 +315,10 @@ Use the configuration files in the `deployments` folder to set up deployment in 
       }
       ```
 
-2.  **Convert QRIS Into Dynamic**
+2.  **Convert QRIS into a Dynamic Version**
 
-    - Endpoint: `POST /to-dynamic`
-    - URL: `https://api.qris.membasuh.com/to-dynamic`
+    - Endpoint: `POST /convert`
+    - URL: `https://api.qris.membasuh.com/convert`
     - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
@@ -295,8 +363,8 @@ Use the configuration files in the `deployments` folder to set up deployment in 
 
 3.  **Validate QRIS**
 
-    - Endpoint: `POST /validate`
-    - URL: `https://api.qris.membasuh.com/validate`
+    - Endpoint: `POST /is-valid`
+    - URL: `https://api.qris.membasuh.com/is-valid`
     - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
