@@ -1,6 +1,6 @@
 # Go-QRIS
 
-Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR code have limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go-QRIS simplifies the process of generating dynamic QRIS code, improving payment flexibility for businesses and providing a seamless experience for customers.
+Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR code has limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go-QRIS simplifies the process of generating dynamic QRIS code, improving payment flexibility for businesses and providing a seamless experience for customers.
 
 ## 📝 Directory Structure
 
@@ -157,6 +157,8 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 Use the configuration files in the `deployments` folder to set up deployment in a production environment.
 
 ## 🔥 API Endpoints
+
+To learn more about the available endpoints, you can refer to [Go-QRIS Postman Documentation](https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7) 🦸
 
 1.  **Parse QRIS**
 
