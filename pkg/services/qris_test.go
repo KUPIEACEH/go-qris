@@ -59,7 +59,7 @@ func TestNewQRIS(t *testing.T) {
 		want QRISInterface
 	}{
 		{
-			name: "Success: No Field",
+			name: "Success",
 			want: &QRIS{
 				crc16CCITTUsecase: crc16CCITTUsecase,
 				qrisUsecase:       qrisUsecase,
