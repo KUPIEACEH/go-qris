@@ -1,5 +1,5 @@
 version: 2
-project_name: go-qris
+project_name: "{{ .Env.DOCKER_REPOSITORY }}"
 env:
   - GO111MODULE=on
 
@@ -23,6 +23,9 @@ builds:
       - arm64
       - amd64
 
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Env.TAG_VERSION }}-{{ .Os }}-{{ .Arch }}"
     format_overrides:
@@ -34,14 +37,14 @@ archives:
 
 dockers:
   - image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
     use: buildx
     dockerfile: ./deployments/Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
   - image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:latest"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:latest"
     use: buildx
     dockerfile: ./deployments/Dockerfile
     goarch: arm64
@@ -49,14 +52,14 @@ dockers:
       - --platform=linux/arm64/v8
 
 docker_manifests:
-  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}"
+  - name_template: "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}"
     image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
-  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:latest"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
+  - name_template: "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:latest"
     image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
+      - "ghcr.io/{{ .Env.DOCKER_USERNAME }}/{{ .Env.DOCKER_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
 
 changelog:
   sort: asc
