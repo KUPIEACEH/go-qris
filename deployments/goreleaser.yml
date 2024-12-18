@@ -1,5 +1,5 @@
 version: 2
-project_name: "{{ .Env.DOCKER_REPOSITORY }}"
+project_name: go-qris
 env:
   - GO111MODULE=on
 
