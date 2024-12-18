@@ -92,15 +92,15 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
         qrisService := services.NewQRIS()
         qrisString, err, errs := qrisService.Convert(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
         if err != nil {
-            fmt.Println("Failed :", err)
+    	    fmt.Println("[ FAILURE ]", err)
             if errs != nil {
                 for _, err := range *errs {
-                    fmt.Println("         -", err)
+                    fmt.Println("            -", err)
                 }
             }
             return
         }
-        fmt.Println("Success:", qrisString)
+        fmt.Println("[ SUCCESS ]", qrisString)
     }
     ```
 
@@ -152,10 +152,6 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
     go test ./... -cover
     ```
 
-## 🚀 Deployment
-
-Use the configuration files in the `deployments` folder to set up deployment in a production environment.
-
 ## 🔥 API Endpoints
 
 To learn more about the available endpoints, you can refer to [Postman Documentation](https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7) 🦸
@@ -163,8 +159,6 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
 1.  **Parse QRIS**
 
     - Endpoint: `POST /parse`
-    - URL: `https://api.qris.membasuh.com/parse`
-    - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
 
@@ -320,8 +314,6 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
 2.  **Convert QRIS into a Dynamic Version**
 
     - Endpoint: `POST /convert`
-    - URL: `https://api.qris.membasuh.com/convert`
-    - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
 
@@ -366,8 +358,6 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
 3.  **Validate QRIS**
 
     - Endpoint: `POST /is-valid`
-    - URL: `https://api.qris.membasuh.com/is-valid`
-    - Method: `POST`
     - Content-Type: `application/json`
     - Request Body:
 
