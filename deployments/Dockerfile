@@ -1,4 +1,7 @@
 FROM scratch
+
+# file binary file
 COPY go-qris /go-qris
-EXPOSE 1337
+
+# run the server executable
 ENTRYPOINT ["/go-qris","run"]
