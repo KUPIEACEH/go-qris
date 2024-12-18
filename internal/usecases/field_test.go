@@ -441,6 +441,54 @@ func TestFieldIsValid(t *testing.T) {
 			},
 		},
 		{
+			name:   "Error: Payment Fee Category Tag Is Missing",
+			fields: Field{},
+			args: args{
+				qris: &entities.QRIS{
+					Version:              testQRIS.Version,
+					Category:             testQRIS.Category,
+					Acquirer:             testQRIS.Acquirer,
+					Switching:            testQRIS.Switching,
+					MerchantCategoryCode: testQRIS.MerchantCategoryCode,
+					CurrencyCode:         testQRIS.CurrencyCode,
+					PaymentFeeCategory:   entities.Data{},
+					PaymentFee:           testQRIS.PaymentFee,
+					CountryCode:          testQRIS.CountryCode,
+					MerchantName:         testQRIS.MerchantName,
+					MerchantCity:         testQRIS.MerchantCity,
+					MerchantPostalCode:   testQRIS.MerchantPostalCode,
+					CRCCode:              testQRIS.CRCCode,
+				},
+			},
+			want: &[]string{
+				"Payment fee category tag is missing",
+			},
+		},
+		{
+			name:   "Error: Payment Fee Tag Is Missing",
+			fields: Field{},
+			args: args{
+				qris: &entities.QRIS{
+					Version:              testQRIS.Version,
+					Category:             testQRIS.Category,
+					Acquirer:             testQRIS.Acquirer,
+					Switching:            testQRIS.Switching,
+					MerchantCategoryCode: testQRIS.MerchantCategoryCode,
+					CurrencyCode:         testQRIS.CurrencyCode,
+					PaymentFeeCategory:   testQRIS.PaymentFeeCategory,
+					PaymentFee:           entities.Data{},
+					CountryCode:          testQRIS.CountryCode,
+					MerchantName:         testQRIS.MerchantName,
+					MerchantCity:         testQRIS.MerchantCity,
+					MerchantPostalCode:   testQRIS.MerchantPostalCode,
+					CRCCode:              testQRIS.CRCCode,
+				},
+			},
+			want: &[]string{
+				"Payment fee tag is missing",
+			},
+		},
+		{
 			name:   "Error: CRC Code Tag Is Missing",
 			fields: Field{},
 			args: args{

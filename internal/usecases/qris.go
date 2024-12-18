@@ -90,6 +90,8 @@ func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPo
 		Data:    uc.qrisTags.PaymentAmountTag + fmt.Sprintf("%02d", len(content)) + content,
 	}, content)
 
+	qris.PaymentFeeCategory = entities.Data{}
+	qris.PaymentFee = entities.Data{}
 	if qris.Acquirer.Tag == uc.qrisTags.AcquirerTag {
 		if merchantCityValue != "" {
 			qris.MerchantCity = *uc.dataUsecase.ModifyContent(&qris.MerchantCity, merchantCityValue)
@@ -98,8 +100,7 @@ func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPo
 			qris.MerchantPostalCode = *uc.dataUsecase.ModifyContent(&qris.MerchantPostalCode, merchantPostalCodeValue)
 		}
 
-		qris.PaymentFee = entities.Data{}
-		if paymentFeeValue > 0 && paymentFeeCategoryValue != "" {
+		if paymentFeeCategoryValue != "" && paymentFeeValue > 0 {
 			paymentFeeCategoryTag := ""
 			paymentFeeCategoryContent := ""
 			paymentFeeCategoryContentLength := ""

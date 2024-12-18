@@ -28,16 +28,15 @@ func Setup(env *bootstrap.Env, ginEngine *gin.Engine) {
 					map[string]any{
 						"1_Name":   "Parse QRIS",
 						"2_Method": "POST",
-						"3_Path":   "/parse",
+						"3_Target": "/parse",
 						"4_Body": map[string]any{
 							"qr_string": "000201010211y0ur4w3soMEQr15STriN6",
 						},
-						"5_Code_Snippet": `curl --location 'https://api.qris.membasuh.com/parse' --header 'Content-Type: application/json' --data '{"qr_string": "000201010211y0ur4w3soMEQr15STriN6"}'`,
 					},
 					map[string]any{
 						"1_Name":   "Convert QRIS into a Dynamic Version",
 						"2_Method": "POST",
-						"3_Path":   "/convert",
+						"3_Target": "/convert",
 						"4_Body": map[string]any{
 							"qr_string":            "000201010211y0ur4w3soMEQr15STriN6",
 							"merchant_city":        "Kota Yogyakarta",
@@ -46,16 +45,14 @@ func Setup(env *bootstrap.Env, ginEngine *gin.Engine) {
 							"payment_fee_category": "FIXED",
 							"payment_fee":          666,
 						},
-						"5_Code_Snippet": `curl --location 'https://api.qris.membasuh.com/convert' --header 'Content-Type: application/json' --data '{ "qr_string": "000201010211y0ur4w3soMEQr15STriN6", "merchant_city": "Kota Yogyakarta", "merchant_postal_code": "55000", "payment_amount": 1337, "payment_fee_category": "FIXED", "payment_fee": 666 }'`,
 					},
 					map[string]any{
 						"1_Name":   "Validate QRIS",
 						"2_Method": "POST",
-						"3_Path":   "/is-valid",
+						"3_Target": "/is-valid",
 						"4_Body": map[string]any{
 							"qr_string": "000201010211y0ur4w3soMEQr15STriN6",
 						},
-						"5_Code_Snippet": `curl --location 'https://api.qris.membasuh.com/is-valid' --header 'Content-Type: application/json' --data '{"qr_string": "000201010211y0ur4w3soMEQr15STriN6"}'`,
 					},
 				},
 			},

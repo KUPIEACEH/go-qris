@@ -118,6 +118,8 @@ func (uc *Field) IsValid(qris *entities.QRIS, errs *[]string) {
 		}
 	}
 
+	uc.IsValidPaymentFee(qris, errs)
+
 	isValidField(errs, qris.MerchantCategoryCode.Tag, "Merchant category tag is missing")
 	isValidField(errs, qris.CurrencyCode.Tag, "Currency code tag is missing")
 	isValidField(errs, qris.CountryCode.Tag, "Country code tag is missing")
@@ -125,4 +127,13 @@ func (uc *Field) IsValid(qris *entities.QRIS, errs *[]string) {
 	isValidField(errs, qris.MerchantCity.Tag, "Merchant city tag is missing")
 	isValidField(errs, qris.MerchantPostalCode.Tag, "Merchant postal code tag is missing")
 	isValidField(errs, qris.CRCCode.Tag, "CRC code tag is missing")
+}
+
+func (uc *Field) IsValidPaymentFee(qris *entities.QRIS, errs *[]string) {
+	if qris.PaymentFeeCategory.Tag == "" && qris.PaymentFee.Tag != "" {
+		*errs = append(*errs, "Payment fee category tag is missing")
+	}
+	if qris.PaymentFeeCategory.Tag != "" && qris.PaymentFee.Tag == "" {
+		*errs = append(*errs, "Payment fee tag is missing")
+	}
 }
