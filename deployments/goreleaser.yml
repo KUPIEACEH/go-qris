@@ -1,0 +1,72 @@
+version: 2
+project_name: ${DOCKERHUB_REPOSITORY}
+env:
+  - GO111MODULE=on
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/main.go
+    flags: -trimpath
+    ldflags:
+      - -extldflags=-static
+      - -s -w
+      - -X {{ .ModulePath }}/internal/config.Version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - arm
+      - arm64
+      - amd64
+
+archives:
+  - name_template: "{{ .ProjectName }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README*.md
+      - LICENSE
+
+dockers:
+  - image_templates:
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+    use: buildx
+    dockerfile: ./deployments/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+
+  - image_templates:
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:latest"
+    use: buildx
+    dockerfile: ./deployments/Dockerfile
+    goarch: arm64
+    build_flag_templates:
+      - --platform=linux/arm64/v8
+
+docker_manifests:
+  - name_template: "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:latest"
+    image_templates:
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "docker.io/${DOCKERHUB_USERNAME}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^README"
+      - "^Update"
+      - Merge pull request
+      - Merge branch

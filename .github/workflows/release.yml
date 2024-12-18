@@ -25,18 +25,14 @@ jobs:
         run: go test -v ./...
 
   publish:
-    name: Publish to Docker Hub
+    name: Release
     runs-on: ubuntu-latest
     needs: [build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        with:
+          fetch-depth: 0
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -44,42 +40,16 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Init tag version name
-        run: |
-          echo "TAG_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-
       - name: Build and push docker image
         run: |
-          sed -i 's/${DOCKERHUB_USERNAME}/${{ vars.DOCKERHUB_USERNAME }}/g' deployments/docker-compose.yaml
-          sed -i 's/${DOCKERHUB_REPOSITORY}/${{ vars.DOCKERHUB_REPOSITORY }}/g' deployments/docker-compose.yaml
-          sed -i 's/${TAG_VERSION}/${{ env.TAG_VERSION }}/g' deployments/docker-compose.yaml
-          sed -i 's/${PORT}/${{ vars.PORT }}/g' deployments/docker-compose.yaml
-          docker compose -f ./deployments/docker-compose.yaml build
-          docker compose -f ./deployments/docker-compose.yaml push
-
-      - name: Build and push docker image by latest version
-        run: |
-          docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.TAG_VERSION }} ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest
-          docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest
-
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: [publish]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: stable
+          sed -i 's/${DOCKERHUB_USERNAME}/${{ vars.DOCKERHUB_USERNAME }}/g' ./deployments/goreleaser.yml
+          sed -i 's/${DOCKERHUB_REPOSITORY}/${{ vars.DOCKERHUB_REPOSITORY }}/g' ./deployments/goreleaser.yml
 
       - name: Release
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean
+          args: release --clean --config ./deployments/goreleaser.yml
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
