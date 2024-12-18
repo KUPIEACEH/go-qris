@@ -39,7 +39,6 @@ dockers:
     dockerfile: ./deployments/Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
-
   - image_templates:
       - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-arm64"
       - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:latest"
