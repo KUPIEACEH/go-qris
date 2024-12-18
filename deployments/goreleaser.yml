@@ -24,7 +24,7 @@ builds:
       - amd64
 
 archives:
-  - name_template: "{{ .ProjectName }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}"
+  - name_template: "{{ .ProjectName }}-{{ .Env.TAG_VERSION }}-{{ .Os }}-{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
@@ -34,13 +34,13 @@ archives:
 
 dockers:
   - image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
     use: buildx
     dockerfile: ./deployments/Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
   - image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
       - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:latest"
     use: buildx
     dockerfile: ./deployments/Dockerfile
@@ -49,14 +49,14 @@ dockers:
       - --platform=linux/arm64/v8
 
 docker_manifests:
-  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}"
+  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}"
     image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
   - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:latest"
     image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Tag }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .Env.DOCKERHUB_REPOSITORY }}:{{ .Env.TAG_VERSION }}-arm64"
 
 changelog:
   sort: asc

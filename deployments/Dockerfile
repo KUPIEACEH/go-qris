@@ -1,7 +1,7 @@
 FROM scratch
 
-# file binary file
+# Copy compiled binary into the container
 COPY go-qris /go-qris
 
-# run the server executable
+# Set default command to run application
 ENTRYPOINT ["/go-qris","run"]
