@@ -1,5 +1,5 @@
 version: 2
-project_name: go-qris
+project_name: "{{ .Env.DOCKERHUB_REPOSITORY }}"
 env:
   - GO111MODULE=on
 
@@ -34,15 +34,15 @@ archives:
 
 dockers:
   - image_templates:
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
     use: buildx
     dockerfile: ./deployments/Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
 
   - image_templates:
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-arm64"
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:latest"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:latest"
     use: buildx
     dockerfile: ./deployments/Dockerfile
     goarch: arm64
@@ -50,14 +50,14 @@ dockers:
       - --platform=linux/arm64/v8
 
 docker_manifests:
-  - name_template: "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}"
+  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}"
     image_templates:
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-arm64"
-  - name_template: "docker.io/azisalvriyanto/{{ .ProjectName }}:latest"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:latest"
     image_templates:
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "docker.io/azisalvriyanto/{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
 
 changelog:
   sort: asc
