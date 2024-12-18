@@ -67,9 +67,6 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
     docker run --name go-qris -e APP_ENV=development -e QR_CODE_SIZE=256 -p 8080:1337 go-qris
     ```
 
-    Alternatively, open the following url in your browser:
-    [https://hub.docker.com/r/azisalvriyanto/go-qris](https://hub.docker.com/r/azisalvriyanto/go-qris)
-
 3.  Implement into your own awesome project:
 
     ```go
