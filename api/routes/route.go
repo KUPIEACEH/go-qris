@@ -21,7 +21,6 @@ func Setup(env *bootstrap.Env, ginEngine *gin.Engine) {
 				"3_Related URLs": [4]any{
 					"https://github.com/fyvri/go-qris",
 					"https://pkg.go.dev/github.com/fyvri/go-qris",
-					"https://hub.docker.com/r/azisalvriyanto/go-qris",
 					"https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7",
 				},
 				"4_API_Endpoints": [3]any{
