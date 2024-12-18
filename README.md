@@ -23,7 +23,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 ├── .gitignore      # Git ignore file
 ├── go.mod          # Go module configuration
 ├── go.sum          # Go dependencies
-├── LICENSE.md      # Project license
+├── LICENSE         # Project license
 └── README.md       # Project documentation
 ```
 
@@ -408,4 +408,4 @@ Contributions are what make the open-source community such an amazing place to l
 
 ## 📜 License
 
-This project is licensed under [MIT License](LICENSE.md). Feel free to use and modify it as needed.
+This project is licensed under [MIT License](LICENSE). Feel free to use and modify it as needed.
