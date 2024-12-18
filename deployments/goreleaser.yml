@@ -1,9 +1,11 @@
 version: 2
 project_name: ${DOCKERHUB_REPOSITORY}
-release:
-  dirty: true
 env:
   - GO111MODULE=on
+
+release:
+  git:
+    dirty: true
 
 builds:
   - env:
