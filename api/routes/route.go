@@ -18,9 +18,8 @@ func Setup(env *bootstrap.Env, ginEngine *gin.Engine) {
 			Data: map[string]any{
 				"1_Title":       "Go-QRIS",
 				"2_Description": "Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. QRIS (Quick Response Code Indonesian Standard) is widely used for payments, but QR code has limitations in flexibility. This tool enhances QRIS transactions by enabling dynamic data like payment amounts, merchant details, and fees, making payments more adaptable and efficient. Go-QRIS simplifies the process of generating dynamic QRIS code, improving payment flexibility for businesses and providing a seamless experience for customers.",
-				"3_Related URLs": [4]any{
+				"3_Related URLs": [2]any{
 					"https://github.com/fyvri/go-qris",
-					"https://pkg.go.dev/github.com/fyvri/go-qris",
 					"https://documenter.getpostman.com/view/6937269/2sAYJ1jMc7",
 				},
 				"4_API_Endpoints": [3]any{
