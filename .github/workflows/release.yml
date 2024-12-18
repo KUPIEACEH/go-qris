@@ -24,7 +24,7 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-  publish:
+  release:
     name: Release
     runs-on: ubuntu-latest
     needs: [build]
@@ -40,7 +40,7 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push docker image
+      - name: Set GoReleaser Configuration File
         run: |
           sed -i 's/${DOCKERHUB_USERNAME}/${{ vars.DOCKERHUB_USERNAME }}/g' ./deployments/goreleaser.yml
           sed -i 's/${DOCKERHUB_REPOSITORY}/${{ vars.DOCKERHUB_REPOSITORY }}/g' ./deployments/goreleaser.yml
@@ -49,7 +49,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
+          version: "~> v2"
           args: release --clean --config ./deployments/goreleaser.yml
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
