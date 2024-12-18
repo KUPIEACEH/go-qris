@@ -40,8 +40,8 @@ func NewQRIS(qrisController controllers.QRISInterface) QRISInterface {
 func (h *QRIS) Parse(c *gin.Context) {
 	var req ParseRequest
 
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
 			Message: err.Error(),
 			Errors:  nil,
@@ -72,8 +72,8 @@ func (h *QRIS) Parse(c *gin.Context) {
 func (h *QRIS) Convert(c *gin.Context) {
 	var req ConverterRequest
 
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
 			Message: err.Error(),
 			Errors:  nil,
@@ -110,8 +110,8 @@ func (h *QRIS) Convert(c *gin.Context) {
 func (h *QRIS) IsValid(c *gin.Context) {
 	var req ParseRequest
 
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, Response{
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Response{
 			Success: false,
 			Message: err.Error(),
 			Errors:  nil,
