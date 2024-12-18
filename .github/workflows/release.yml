@@ -34,16 +34,37 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure GIT
+        run: |
+          git config --global user.email $(git log --reverse --format='%ae' | head -n 1)
+          git config --global user.name $(git log --reverse --format='%an' | head -n 1)
+
+      - name: Set GoReleaser configuration File
+        run: |
+          sed -i 's/${DOCKERHUB_USERNAME}/${{ vars.DOCKERHUB_USERNAME }}/g' ./deployments/goreleaser.yml
+          sed -i 's/${DOCKERHUB_REPOSITORY}/${{ vars.DOCKERHUB_REPOSITORY }}/g' ./deployments/goreleaser.yml
+
+      - name: Check for changes
+        run: |
+          if [ "$(git status --porcelain)" ]; then
+            echo "Changes detected"
+            echo "CHANGES_EXIST=true" >> $GITHUB_ENV
+          else
+            echo "No changes to commit"
+            echo "CHANGES_EXIST=false" >> $GITHUB_ENV
+          fi
+
+      - name: Commit files
+        if: env.CHANGES_EXIST == 'true'
+        run: |
+          git add .
+          git commit -m "ci(goreleaser): set goreleaser config"
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set GoReleaser Configuration File
-        run: |
-          sed -i 's/${DOCKERHUB_USERNAME}/${{ vars.DOCKERHUB_USERNAME }}/g' ./deployments/goreleaser.yml
-          sed -i 's/${DOCKERHUB_REPOSITORY}/${{ vars.DOCKERHUB_REPOSITORY }}/g' ./deployments/goreleaser.yml
 
       - name: Release
         uses: goreleaser/goreleaser-action@v6

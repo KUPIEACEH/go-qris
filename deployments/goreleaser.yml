@@ -3,10 +3,6 @@ project_name: ${DOCKERHUB_REPOSITORY}
 env:
   - GO111MODULE=on
 
-release:
-  git:
-    dirty: true
-
 builds:
   - env:
       - CGO_ENABLED=0
