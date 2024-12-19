@@ -10,9 +10,8 @@ builds:
     main: ./cmd/main.go
     flags: -trimpath
     ldflags:
-      - -extldflags=-static
       - -s -w
-      - -X {{ .ModulePath }}/internal/config.Version={{ .Version }}
+      - -extldflags=-static
     mod_timestamp: "{{ .CommitTimestamp }}"
     goos:
       - linux
@@ -65,9 +64,9 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - "^docs:"
-      - "^test:"
-      - "^ci:"
+      - "^docs"
+      - "^test"
+      - "^ci"
       - "^README"
       - "^Update"
       - Merge pull request
