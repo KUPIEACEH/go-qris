@@ -89,7 +89,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
         qrisService := services.NewQRIS()
         qrisString, err, errs := qrisService.Convert(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
         if err != nil {
-    	    fmt.Println("[ FAILURE ]", err)
+            fmt.Println("[ FAILURE ]", err)
             if errs != nil {
                 for _, err := range *errs {
                     fmt.Println("            -", err)
