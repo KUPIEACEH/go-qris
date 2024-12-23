@@ -17,17 +17,25 @@ func TestNewQRIS(t *testing.T) {
 		{
 			name: "Success: No Field",
 			fields: QRIS{
-				dataUsecase:                    &Data{},
-				fieldUsecase:                   &Field{},
-				crc16CCITTUsecase:              &CRC16CCITT{},
+				qrisUsecases: &QRISUsecases{
+					Data:                  &Data{},
+					Field:                 &Field{},
+					PaymentFee:            &PaymentFee{},
+					AdditionalInformation: &AdditionalInformation{},
+					CRC16CCITT:            &CRC16CCITT{},
+				},
 				qrisTags:                       &QRISTags{},
 				qrisCategoryContents:           &QRISCategoryContents{},
 				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{},
 			},
 			want: &QRIS{
-				dataUsecase:                    &Data{},
-				fieldUsecase:                   &Field{},
-				crc16CCITTUsecase:              &CRC16CCITT{},
+				qrisUsecases: &QRISUsecases{
+					Data:                  &Data{},
+					Field:                 &Field{},
+					PaymentFee:            &PaymentFee{},
+					AdditionalInformation: &AdditionalInformation{},
+					CRC16CCITT:            &CRC16CCITT{},
+				},
 				qrisTags:                       &QRISTags{},
 				qrisCategoryContents:           &QRISCategoryContents{},
 				qrisPaymentFeeCategoryContents: &QRISPaymentFeeCategoryContents{},
@@ -36,24 +44,28 @@ func TestNewQRIS(t *testing.T) {
 		{
 			name: "Success: With Field",
 			fields: QRIS{
-				dataUsecase:       &Data{},
-				fieldUsecase:      &Field{},
-				crc16CCITTUsecase: &CRC16CCITT{},
+				qrisUsecases: &QRISUsecases{
+					Data:                  &Data{},
+					Field:                 &Field{},
+					PaymentFee:            &PaymentFee{},
+					AdditionalInformation: &AdditionalInformation{},
+					CRC16CCITT:            &CRC16CCITT{},
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
@@ -65,24 +77,28 @@ func TestNewQRIS(t *testing.T) {
 				},
 			},
 			want: &QRIS{
-				dataUsecase:       &Data{},
-				fieldUsecase:      &Field{},
-				crc16CCITTUsecase: &CRC16CCITT{},
+				qrisUsecases: &QRISUsecases{
+					Data:                  &Data{},
+					Field:                 &Field{},
+					PaymentFee:            &PaymentFee{},
+					AdditionalInformation: &AdditionalInformation{},
+					CRC16CCITT:            &CRC16CCITT{},
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
@@ -98,7 +114,7 @@ func TestNewQRIS(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			uc := NewQRIS(test.fields.dataUsecase, test.fields.fieldUsecase, test.fields.crc16CCITTUsecase, test.fields.qrisTags, test.fields.qrisCategoryContents, test.fields.qrisPaymentFeeCategoryContents)
+			uc := NewQRIS(test.fields.qrisUsecases, test.fields.qrisTags, test.fields.qrisCategoryContents, test.fields.qrisPaymentFeeCategoryContents)
 
 			if uc == nil {
 				t.Errorf(expectedReturnNonNil, "NewQRIS", "QRISInterface")
@@ -131,9 +147,11 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Error: Parse",
 			fields: QRIS{
-				dataUsecase: &mockDataUsecase{
-					ParseFunc: func(codeString string) (*entities.Data, error) {
-						return nil, fmt.Errorf("invalid format code")
+				qrisUsecases: &QRISUsecases{
+					Data: &mockDataUsecase{
+						ParseFunc: func(codeString string) (*entities.Data, error) {
+							return nil, fmt.Errorf("invalid format code")
+						},
 					},
 				},
 			},
@@ -146,14 +164,16 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Error: uc.fieldUsecase.Assign()",
 			fields: QRIS{
-				dataUsecase: &mockDataUsecase{
-					ParseFunc: func(codeString string) (*entities.Data, error) {
-						return &testQRIS.Version, nil
+				qrisUsecases: &QRISUsecases{
+					Data: &mockDataUsecase{
+						ParseFunc: func(codeString string) (*entities.Data, error) {
+							return &testQRIS.Version, nil
+						},
 					},
-				},
-				fieldUsecase: &mockFieldUsecase{
-					AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
-						return fmt.Errorf("invalid extract acquirer for content %s", testQRIS.Acquirer.Content)
+					Field: &mockFieldUsecase{
+						AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
+							return fmt.Errorf("invalid extract acquirer for content %s", testQRIS.Acquirer.Content)
+						},
 					},
 				},
 			},
@@ -166,21 +186,23 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Error: uc.fieldUsecase.IsValid()",
 			fields: QRIS{
-				dataUsecase: &mockDataUsecase{
-					ParseFunc: func(codeString string) (*entities.Data, error) {
-						return &testQRIS.Version, nil
+				qrisUsecases: &QRISUsecases{
+					Data: &mockDataUsecase{
+						ParseFunc: func(codeString string) (*entities.Data, error) {
+							return &testQRIS.Version, nil
+						},
 					},
-				},
-				fieldUsecase: &mockFieldUsecase{
-					AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
-						if data.Tag == testVersionTag {
-							qris.Version = *data
-						}
-						return nil
-					},
-					IsValidFunc: func(qris *entities.QRIS, errs *[]string) {
-						*errs = append(*errs, "Category tag is missing")
-						return
+					Field: &mockFieldUsecase{
+						AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
+							if data.Tag == testVersionTag {
+								qris.Version = *data
+							}
+							return nil
+						},
+						IsValidFunc: func(qris *entities.QRIS, errs *[]string) {
+							*errs = append(*errs, "Category tag is missing")
+							return
+						},
 					},
 				},
 			},
@@ -193,17 +215,19 @@ func TestQRISParse(t *testing.T) {
 		{
 			name: "Success",
 			fields: QRIS{
-				dataUsecase: &mockDataUsecase{
-					ParseFunc: func(codeString string) (*entities.Data, error) {
-						return &testQRIS.Version, nil
+				qrisUsecases: &QRISUsecases{
+					Data: &mockDataUsecase{
+						ParseFunc: func(codeString string) (*entities.Data, error) {
+							return &testQRIS.Version, nil
+						},
 					},
-				},
-				fieldUsecase: &mockFieldUsecase{
-					AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
-						if data.Tag == testVersionTag {
-							qris.Version = *data
-						}
-						return nil
+					Field: &mockFieldUsecase{
+						AssignFunc: func(qris *entities.QRIS, data *entities.Data) error {
+							if data.Tag == testVersionTag {
+								qris.Version = *data
+							}
+							return nil
+						},
 					},
 				},
 			},
@@ -220,25 +244,29 @@ func TestQRISParse(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &QRIS{
-				dataUsecase:       test.fields.dataUsecase,
-				fieldUsecase:      test.fields.fieldUsecase,
-				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
+				qrisUsecases: &QRISUsecases{
+					Data:                  test.fields.qrisUsecases.Data,
+					Field:                 test.fields.qrisUsecases.Field,
+					PaymentFee:            test.fields.qrisUsecases.PaymentFee,
+					AdditionalInformation: test.fields.qrisUsecases.AdditionalInformation,
+					CRC16CCITT:            test.fields.qrisUsecases.CRC16CCITT,
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					AcquirerBankTransferTag:  testAcquirerBankTransferTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					AcquirerBankTransfer:  testAcquirerBankTransferTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
@@ -266,6 +294,7 @@ func TestQRISModify(t *testing.T) {
 		testMerchantCityContent       = "New Merchant City"
 		testMerchantPostalCodeContent = "55181"
 		testPaymentAmountValue        = uint32(1337)
+		testTerminalLabel             = "Awesome Terminal Label"
 		testMerchantCity              = entities.Data{
 			Tag:     testQRIS.MerchantCity.Tag,
 			Content: testMerchantCityContent,
@@ -282,6 +311,7 @@ func TestQRISModify(t *testing.T) {
 		qris               entities.QRIS
 		paymentFeeCategory string
 		paymentFee         uint32
+		terminalLabel      string
 	}
 
 	tests := []struct {
@@ -291,34 +321,59 @@ func TestQRISModify(t *testing.T) {
 		want   *entities.QRIS
 	}{
 		{
-			name: "Success: Fixed Payment Fee",
+			name: "Success",
 			fields: QRIS{
-				crc16CCITTUsecase: &mockCRC16CCITTUsecase{
-					GenerateCodeFunc: func(code string) string {
-						return "AZ15"
-					},
-				},
-				dataUsecase: &mockDataUsecase{
-					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						var tag string
-						switch extractData.Tag {
-						case testQRIS.PaymentAmount.Tag:
-							tag = testQRIS.PaymentAmount.Tag
-						case testQRIS.MerchantCity.Tag:
-							tag = testQRIS.MerchantCity.Tag
-						case testQRIS.MerchantPostalCode.Tag:
-							tag = testQRIS.MerchantPostalCode.Tag
-						case testQRIS.CRCCode.Tag:
-							tag = testQRIS.CRCCode.Tag
-						default:
-							return &entities.Data{}
-						}
+				qrisUsecases: &QRISUsecases{
+					PaymentFee: &mockPaymentFeeUsecase{
+						ModifyFunc: func(qris *entities.QRIS, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+							qris.PaymentFeeCategory = entities.Data{
+								Tag:     testPaymentFeeCategoryTag,
+								Content: testPaymentFeeCategoryFixedContent,
+								Data:    testPaymentFeeCategoryTag + fmt.Sprintf("%02d", len(testPaymentFeeCategoryFixedContent)) + testPaymentFeeCategoryFixedContent,
+							}
+							qris.PaymentFee = entities.Data{
+								Tag:     testPaymentFeeFixedTag,
+								Content: "666",
+								Data:    testPaymentFeeFixedTag + fmt.Sprintf("%02d", len("666")) + "666",
+							}
 
-						return &entities.Data{
-							Tag:     tag,
-							Content: content,
-							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
-						}
+							return qris
+						},
+					},
+					AdditionalInformation: &mockAdditionalInformationUsecase{
+						ToStringFunc: func(additionalInformation *entities.AdditionalInformationDetail) string {
+							return testAdditionalInformationDetailTerminalLabelTag + fmt.Sprintf("%02d", len(testTerminalLabel)) + testTerminalLabel
+						},
+					},
+					CRC16CCITT: &mockCRC16CCITTUsecase{
+						GenerateCodeFunc: func(code string) string {
+							return "AZ15"
+						},
+					},
+					Data: &mockDataUsecase{
+						ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
+							var tag string
+							switch extractData.Tag {
+							case testQRIS.PaymentAmount.Tag:
+								tag = testQRIS.PaymentAmount.Tag
+							case testQRIS.MerchantCity.Tag:
+								tag = testQRIS.MerchantCity.Tag
+							case testQRIS.MerchantPostalCode.Tag:
+								tag = testQRIS.MerchantPostalCode.Tag
+							case testQRIS.AdditionalInformation.Detail.TerminalLabel.Tag:
+								tag = testQRIS.AdditionalInformation.Detail.TerminalLabel.Tag
+							case testQRIS.CRCCode.Tag:
+								tag = testQRIS.CRCCode.Tag
+							default:
+								return &entities.Data{}
+							}
+
+							return &entities.Data{
+								Tag:     tag,
+								Content: content,
+								Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
+							}
+						},
 					},
 				},
 			},
@@ -326,6 +381,7 @@ func TestQRISModify(t *testing.T) {
 				qris:               testQRIS,
 				paymentFeeCategory: "FIXED",
 				paymentFee:         666,
+				terminalLabel:      testTerminalLabel,
 			},
 			want: &entities.QRIS{
 				Version: testQRIS.Version,
@@ -353,161 +409,22 @@ func TestQRISModify(t *testing.T) {
 					Content: "666",
 					Data:    testPaymentFeeFixedTag + fmt.Sprintf("%02d", len("666")) + "666",
 				},
-				CountryCode:           testQRIS.CountryCode,
-				MerchantName:          testQRIS.MerchantName,
-				MerchantCity:          testMerchantCity,
-				MerchantPostalCode:    testMerchantPostalCode,
-				AdditionalInformation: testQRIS.AdditionalInformation,
-				CRCCode: entities.Data{
-					Tag:     testCRCCodeTag,
-					Content: "AZ15",
-					Data:    testCRCCodeTag + fmt.Sprintf("%02d", len("AZ15")) + "AZ15",
-				},
-			},
-		},
-		{
-			name: "Success: Percent Payment Fee",
-			fields: QRIS{
-				crc16CCITTUsecase: &mockCRC16CCITTUsecase{
-					GenerateCodeFunc: func(code string) string {
-						return "AZ15"
+				CountryCode:        testQRIS.CountryCode,
+				MerchantName:       testQRIS.MerchantName,
+				MerchantCity:       testMerchantCity,
+				MerchantPostalCode: testMerchantPostalCode,
+				AdditionalInformation: entities.AdditionalInformation{
+					Tag:     testAdditionalInformationTag,
+					Content: testAdditionalInformationDetailTerminalLabelTag + fmt.Sprintf("%02d", len(testTerminalLabel)) + testTerminalLabel,
+					Data:    testAdditionalInformationTag + "26" + testAdditionalInformationDetailTerminalLabelTag + fmt.Sprintf("%02d", len(testTerminalLabel)) + testTerminalLabel,
+					Detail: entities.AdditionalInformationDetail{
+						TerminalLabel: entities.Data{
+							Tag:     testAdditionalInformationDetailTerminalLabelTag,
+							Content: testTerminalLabel,
+							Data:    testAdditionalInformationDetailTerminalLabelTag + fmt.Sprintf("%02d", len(testTerminalLabel)) + testTerminalLabel,
+						},
 					},
 				},
-				dataUsecase: &mockDataUsecase{
-					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						var tag string
-						switch extractData.Tag {
-						case testQRIS.PaymentAmount.Tag:
-							tag = testQRIS.PaymentAmount.Tag
-						case testQRIS.MerchantCity.Tag:
-							tag = testQRIS.MerchantCity.Tag
-						case testQRIS.MerchantPostalCode.Tag:
-							tag = testQRIS.MerchantPostalCode.Tag
-						case testQRIS.CRCCode.Tag:
-							tag = testQRIS.CRCCode.Tag
-						default:
-							return &entities.Data{}
-						}
-
-						return &entities.Data{
-							Tag:     tag,
-							Content: content,
-							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
-						}
-					},
-				},
-			},
-			args: args{
-				qris:               testQRIS,
-				paymentFeeCategory: "PERCENT",
-				paymentFee:         25,
-			},
-			want: &entities.QRIS{
-				Version: testQRIS.Version,
-				Category: entities.Data{
-					Tag:     testCategoryTag,
-					Content: testCategoryDynamicContent,
-					Data:    testCategoryTag + fmt.Sprintf("%02d", len(testCategoryDynamicContent)) + testCategoryDynamicContent,
-				},
-				Acquirer:             testQRIS.Acquirer,
-				Switching:            testQRIS.Switching,
-				MerchantCategoryCode: testQRIS.MerchantCategoryCode,
-				CurrencyCode:         testQRIS.CurrencyCode,
-				PaymentAmount: entities.Data{
-					Tag:     testPaymentAmountTag,
-					Content: fmt.Sprintf("%d", testPaymentAmountValue),
-					Data:    testPaymentAmountTag + fmt.Sprintf("%02d", len(fmt.Sprintf("%d", testPaymentAmountValue))) + fmt.Sprintf("%d", testPaymentAmountValue),
-				},
-				PaymentFeeCategory: entities.Data{
-					Tag:     testPaymentFeeCategoryTag,
-					Content: testPaymentFeeCategoryPercentContent,
-					Data:    testPaymentFeeCategoryTag + fmt.Sprintf("%02d", len(testPaymentFeeCategoryPercentContent)) + testPaymentFeeCategoryPercentContent,
-				},
-				PaymentFee: entities.Data{
-					Tag:     testPaymentFeePercentTag,
-					Content: "25",
-					Data:    testPaymentFeePercentTag + fmt.Sprintf("%02d", len("25")) + "25",
-				},
-				CountryCode:           testQRIS.CountryCode,
-				MerchantName:          testQRIS.MerchantName,
-				MerchantCity:          testMerchantCity,
-				MerchantPostalCode:    testMerchantPostalCode,
-				AdditionalInformation: testQRIS.AdditionalInformation,
-				CRCCode: entities.Data{
-					Tag:     testCRCCodeTag,
-					Content: "AZ15",
-					Data:    testCRCCodeTag + fmt.Sprintf("%02d", len("AZ15")) + "AZ15",
-				},
-			},
-		},
-		{
-			name: "Success: No Payment Fee",
-			fields: QRIS{
-				crc16CCITTUsecase: &mockCRC16CCITTUsecase{
-					GenerateCodeFunc: func(code string) string {
-						return "AZ15"
-					},
-				},
-				dataUsecase: &mockDataUsecase{
-					ModifyContentFunc: func(extractData *entities.Data, content string) *entities.Data {
-						var tag string
-						switch extractData.Tag {
-						case testQRIS.PaymentAmount.Tag:
-							tag = testQRIS.PaymentAmount.Tag
-						case testQRIS.MerchantCity.Tag:
-							tag = testQRIS.MerchantCity.Tag
-						case testQRIS.MerchantPostalCode.Tag:
-							tag = testQRIS.MerchantPostalCode.Tag
-						case testQRIS.CRCCode.Tag:
-							tag = testQRIS.CRCCode.Tag
-						default:
-							return &entities.Data{}
-						}
-
-						return &entities.Data{
-							Tag:     tag,
-							Content: content,
-							Data:    tag + fmt.Sprintf("%02d", len(content)) + content,
-						}
-					},
-				},
-			},
-			args: args{
-				qris:               testQRIS,
-				paymentFeeCategory: "UNDEFINED",
-				paymentFee:         1337,
-			},
-			want: &entities.QRIS{
-				Version: testQRIS.Version,
-				Category: entities.Data{
-					Tag:     testCategoryTag,
-					Content: testCategoryDynamicContent,
-					Data:    testCategoryTag + fmt.Sprintf("%02d", len(testCategoryDynamicContent)) + testCategoryDynamicContent,
-				},
-				Acquirer:             testQRIS.Acquirer,
-				Switching:            testQRIS.Switching,
-				MerchantCategoryCode: testQRIS.MerchantCategoryCode,
-				CurrencyCode:         testQRIS.CurrencyCode,
-				PaymentAmount: entities.Data{
-					Tag:     testPaymentAmountTag,
-					Content: fmt.Sprintf("%d", testPaymentAmountValue),
-					Data:    testPaymentAmountTag + fmt.Sprintf("%02d", len(fmt.Sprintf("%d", testPaymentAmountValue))) + fmt.Sprintf("%d", testPaymentAmountValue),
-				},
-				PaymentFeeCategory: entities.Data{
-					Tag:     "",
-					Content: "",
-					Data:    "",
-				},
-				PaymentFee: entities.Data{
-					Tag:     "",
-					Content: "",
-					Data:    "",
-				},
-				CountryCode:           testQRIS.CountryCode,
-				MerchantName:          testQRIS.MerchantName,
-				MerchantCity:          testMerchantCity,
-				MerchantPostalCode:    testMerchantPostalCode,
-				AdditionalInformation: testQRIS.AdditionalInformation,
 				CRCCode: entities.Data{
 					Tag:     testCRCCodeTag,
 					Content: "AZ15",
@@ -520,27 +437,31 @@ func TestQRISModify(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &QRIS{
-				dataUsecase:       test.fields.dataUsecase,
-				fieldUsecase:      test.fields.fieldUsecase,
-				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
+				qrisUsecases: &QRISUsecases{
+					Data:                  test.fields.qrisUsecases.Data,
+					Field:                 test.fields.qrisUsecases.Field,
+					PaymentFee:            test.fields.qrisUsecases.PaymentFee,
+					AdditionalInformation: test.fields.qrisUsecases.AdditionalInformation,
+					CRC16CCITT:            test.fields.qrisUsecases.CRC16CCITT,
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					AcquirerBankTransferTag:  testAcquirerBankTransferTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					PaymentFeeFixedTag:       testPaymentFeeFixedTag,
-					PaymentFeePercentTag:     testPaymentFeePercentTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					AcquirerBankTransfer:  testAcquirerBankTransferTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					PaymentFeeFixed:       testPaymentFeeFixedTag,
+					PaymentFeePercent:     testPaymentFeePercentTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
@@ -552,7 +473,7 @@ func TestQRISModify(t *testing.T) {
 				},
 			}
 
-			got := uc.Modify(&test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, test.args.paymentFeeCategory, test.args.paymentFee)
+			got := uc.Modify(&test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, test.args.paymentFeeCategory, test.args.paymentFee, test.args.terminalLabel)
 			if !reflect.DeepEqual(got, test.want) {
 				t.Errorf(expectedButGotMessage, "Modify()", test.want, got)
 			}
@@ -610,8 +531,16 @@ func TestQRISToString(t *testing.T) {
 		want   string
 	}{
 		{
-			name:   "Success",
-			fields: QRIS{},
+			name: "Success",
+			fields: QRIS{
+				qrisUsecases: &QRISUsecases{
+					Data:                  &Data{},
+					Field:                 &Field{},
+					PaymentFee:            &PaymentFee{},
+					AdditionalInformation: &AdditionalInformation{},
+					CRC16CCITT:            &CRC16CCITT{},
+				},
+			},
 			args: args{
 				qris: testQRIS,
 			},
@@ -636,24 +565,28 @@ func TestQRISToString(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &QRIS{
-				dataUsecase:       test.fields.dataUsecase,
-				fieldUsecase:      test.fields.fieldUsecase,
-				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
+				qrisUsecases: &QRISUsecases{
+					Data:                  test.fields.qrisUsecases.Data,
+					Field:                 test.fields.qrisUsecases.Field,
+					PaymentFee:            test.fields.qrisUsecases.PaymentFee,
+					AdditionalInformation: test.fields.qrisUsecases.AdditionalInformation,
+					CRC16CCITT:            test.fields.qrisUsecases.CRC16CCITT,
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,
@@ -685,25 +618,13 @@ func TestQRISIsValid(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "Success: False",
+			name: "Success: True",
 			fields: QRIS{
-				crc16CCITTUsecase: &mockCRC16CCITTUsecase{
-					GenerateCodeFunc: func(code string) string {
-						return "AZ15"
-					},
-				},
-			},
-			args: args{
-				qris: &testQRIS,
-			},
-			want: false,
-		},
-		{
-			name: "Success: False",
-			fields: QRIS{
-				crc16CCITTUsecase: &mockCRC16CCITTUsecase{
-					GenerateCodeFunc: func(code string) string {
-						return "1FA2"
+				qrisUsecases: &QRISUsecases{
+					CRC16CCITT: &mockCRC16CCITTUsecase{
+						GenerateCodeFunc: func(code string) string {
+							return "1FA2"
+						},
 					},
 				},
 			},
@@ -712,29 +633,49 @@ func TestQRISIsValid(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "Success: False",
+			fields: QRIS{
+				qrisUsecases: &QRISUsecases{
+					CRC16CCITT: &mockCRC16CCITTUsecase{
+						GenerateCodeFunc: func(code string) string {
+							return "AZ15"
+						},
+					},
+				},
+			},
+			args: args{
+				qris: &testQRIS,
+			},
+			want: false,
+		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &QRIS{
-				dataUsecase:       test.fields.dataUsecase,
-				fieldUsecase:      test.fields.fieldUsecase,
-				crc16CCITTUsecase: test.fields.crc16CCITTUsecase,
+				qrisUsecases: &QRISUsecases{
+					Data:                  test.fields.qrisUsecases.Data,
+					Field:                 test.fields.qrisUsecases.Field,
+					PaymentFee:            test.fields.qrisUsecases.PaymentFee,
+					AdditionalInformation: test.fields.qrisUsecases.AdditionalInformation,
+					CRC16CCITT:            test.fields.qrisUsecases.CRC16CCITT,
+				},
 				qrisTags: &QRISTags{
-					VersionTag:               testVersionTag,
-					CategoryTag:              testCategoryTag,
-					AcquirerTag:              testAcquirerTag,
-					SwitchingTag:             testSwitchingTag,
-					MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-					CurrencyCodeTag:          testCurrencyCodeTag,
-					PaymentAmountTag:         testPaymentAmountTag,
-					PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-					CountryCodeTag:           testCountryCodeTag,
-					MerchantNameTag:          testMerchantNameTag,
-					MerchantCityTag:          testMerchantCityTag,
-					MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-					AdditionalInformationTag: testAdditionalInformationTag,
-					CRCCodeTag:               testCRCCodeTag,
+					Version:               testVersionTag,
+					Category:              testCategoryTag,
+					Acquirer:              testAcquirerTag,
+					Switching:             testSwitchingTag,
+					MerchantCategoryCode:  testMerchantCategoryCodeTag,
+					CurrencyCode:          testCurrencyCodeTag,
+					PaymentAmount:         testPaymentAmountTag,
+					PaymentFeeCategory:    testPaymentFeeCategoryTag,
+					CountryCode:           testCountryCodeTag,
+					MerchantName:          testMerchantNameTag,
+					MerchantCity:          testMerchantCityTag,
+					MerchantPostalCode:    testMerchantPostalCodeTag,
+					AdditionalInformation: testAdditionalInformationTag,
+					CRCCode:               testCRCCodeTag,
 				},
 				qrisCategoryContents: &QRISCategoryContents{
 					Static:  testCategoryStaticContent,

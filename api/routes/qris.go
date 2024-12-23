@@ -13,23 +13,23 @@ import (
 
 func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
 	qrisTags := &usecases.QRISTags{
-		VersionTag:               config.VersionTag,
-		CategoryTag:              config.CategoryTag,
-		AcquirerTag:              config.AcquirerTag,
-		AcquirerBankTransferTag:  config.AcquirerBankTransferTag,
-		SwitchingTag:             config.SwitchingTag,
-		MerchantCategoryCodeTag:  config.MerchantCategoryCodeTag,
-		CurrencyCodeTag:          config.CurrencyCodeTag,
-		PaymentAmountTag:         config.PaymentAmountTag,
-		PaymentFeeCategoryTag:    config.PaymentFeeCategoryTag,
-		PaymentFeeFixedTag:       config.PaymentFeeFixedTag,
-		PaymentFeePercentTag:     config.PaymentFeePercentTag,
-		CountryCodeTag:           config.CountryCodeTag,
-		MerchantNameTag:          config.MerchantNameTag,
-		MerchantCityTag:          config.MerchantCityTag,
-		MerchantPostalCodeTag:    config.MerchantPostalCodeTag,
-		AdditionalInformationTag: config.AdditionalInformationTag,
-		CRCCodeTag:               config.CRCCodeTag,
+		Version:               config.VersionTag,
+		Category:              config.CategoryTag,
+		Acquirer:              config.AcquirerTag,
+		AcquirerBankTransfer:  config.AcquirerBankTransferTag,
+		Switching:             config.SwitchingTag,
+		MerchantCategoryCode:  config.MerchantCategoryCodeTag,
+		CurrencyCode:          config.CurrencyCodeTag,
+		PaymentAmount:         config.PaymentAmountTag,
+		PaymentFeeCategory:    config.PaymentFeeCategoryTag,
+		PaymentFeeFixed:       config.PaymentFeeFixedTag,
+		PaymentFeePercent:     config.PaymentFeePercentTag,
+		CountryCode:           config.CountryCodeTag,
+		MerchantName:          config.MerchantNameTag,
+		MerchantCity:          config.MerchantCityTag,
+		MerchantPostalCode:    config.MerchantPostalCodeTag,
+		AdditionalInformation: config.AdditionalInformationTag,
+		CRCCode:               config.CRCCodeTag,
 	}
 	qrisCategoryContents := &usecases.QRISCategoryContents{
 		Static:  config.CategoryStaticContent,
@@ -39,16 +39,52 @@ func NewQRISRouter(env *bootstrap.Env, group *gin.RouterGroup) {
 		Fixed:   config.PaymentFeeCategoryFixedContent,
 		Percent: config.PaymentFeeCategoryPercentContent,
 	}
+	acquirerDetailTags := &usecases.AcquirerDetailTags{
+		Site:       config.AcquirerDetailSiteTag,
+		MPAN:       config.AcquirerDetailMPANTag,
+		TerminalID: config.AcquirerDetailTerminalIDTag,
+		Category:   config.AcquirerDetailCategoryTag,
+	}
+	switchingDetailTags := &usecases.SwitchingDetailTags{
+		Site:     config.SwitchingDetailSiteTag,
+		NMID:     config.SwitchingDetailNMIDTag,
+		Category: config.SwitchingDetailCategoryTag,
+	}
+	qrisAdditionalInformationDetailTags := &usecases.AdditionalInformationDetailTags{
+		BillNumber:                    config.AdditionalInformationDetailBillNumberTag,
+		MobileNumber:                  config.AdditionalInformationDetailMobileNumberTag,
+		StoreLabel:                    config.AdditionalInformationDetailStoreLabelTag,
+		LoyaltyNumber:                 config.AdditionalInformationDetailLoyaltyNumberTag,
+		ReferenceLabel:                config.AdditionalInformationDetailReferenceLabelTag,
+		CustomerLabel:                 config.AdditionalInformationDetailCustomerLabelTag,
+		TerminalLabel:                 config.AdditionalInformationDetailTerminalLabelTag,
+		PurposeOfTransaction:          config.AdditionalInformationDetailPurposeOfTransactionTag,
+		AdditionalConsumerDataRequest: config.AdditionalInformationDetailAdditionalConsumerDataRequestTag,
+		MerchantTaxID:                 config.AdditionalInformationDetailMerchantTaxIDTag,
+		MerchantChannel:               config.AdditionalInformationDetailMerchantChannelTag,
+		RFUStart:                      config.AdditionalInformationDetailRFUTagStart,
+		RFUEnd:                        config.AdditionalInformationDetailRFUTagEnd,
+		PaymentSystemSpecificStart:    config.AdditionalInformationDetailPaymentSystemSpecificTagStart,
+		PaymentSystemSpecificEnd:      config.AdditionalInformationDetailPaymentSystemSpecificTagEnd,
+	}
 
 	dataUsecase := usecases.NewData()
-	acquirerUsecase := usecases.NewAcquirer(dataUsecase, config.AcquirerDetailSiteTag, config.AcquirerDetailMPANTag, config.AcquirerDetailTerminalIDTag, config.AcquirerDetailCategoryTag)
-	switchingUsecase := usecases.NewSwitching(dataUsecase, config.SwitchingDetailSiteTag, config.SwitchingDetailNMIDTag, config.SwitchingDetailCategoryTag)
-	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, qrisTags, qrisCategoryContents)
+	acquirerUsecase := usecases.NewAcquirer(dataUsecase, acquirerDetailTags)
+	switchingUsecase := usecases.NewSwitching(dataUsecase, switchingDetailTags)
+	additionalInformationUsecase := usecases.NewAdditionalInformation(dataUsecase, qrisAdditionalInformationDetailTags)
+	paymentFeeUsecase := usecases.NewPaymentFee(qrisTags, qrisPaymentFeeCategoryContents)
+	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, additionalInformationUsecase, qrisTags, qrisCategoryContents)
 	crc16CCITTUsecase := usecases.NewCRC16CCITT()
+
+	qrisUsecases := &usecases.QRISUsecases{
+		Data:                  dataUsecase,
+		Field:                 fieldUsecase,
+		PaymentFee:            paymentFeeUsecase,
+		AdditionalInformation: additionalInformationUsecase,
+		CRC16CCITT:            crc16CCITTUsecase,
+	}
 	qrisUsecase := usecases.NewQRIS(
-		dataUsecase,
-		fieldUsecase,
-		crc16CCITTUsecase,
+		qrisUsecases,
 		qrisTags,
 		qrisCategoryContents,
 		qrisPaymentFeeCategoryContents,

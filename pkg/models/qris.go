@@ -14,6 +14,6 @@ type QRIS struct {
 	MerchantName          Data
 	MerchantCity          Data
 	MerchantPostalCode    Data
-	AdditionalInformation Data
+	AdditionalInformation AdditionalInformation
 	CRCCode               Data
 }

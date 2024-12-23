@@ -5,24 +5,25 @@ import (
 )
 
 type Acquirer struct {
-	dataUsecase   DataInterface
-	siteTag       string
-	mpanTag       string
-	terminalIDTag string
-	categoryTag   string
+	dataUsecase        DataInterface
+	acquirerDetailTags *AcquirerDetailTags
+}
+
+type AcquirerDetailTags struct {
+	Site       string
+	MPAN       string
+	TerminalID string
+	Category   string
 }
 
 type AcquirerInterface interface {
 	Parse(content string) (*entities.AcquirerDetail, error)
 }
 
-func NewAcquirer(dataUsecase DataInterface, siteTag string, mpanTag string, terminalIDTag string, categoryTag string) AcquirerInterface {
+func NewAcquirer(dataUsecase DataInterface, acquirerDetailTags *AcquirerDetailTags) AcquirerInterface {
 	return &Acquirer{
-		dataUsecase:   dataUsecase,
-		siteTag:       siteTag,
-		mpanTag:       mpanTag,
-		terminalIDTag: terminalIDTag,
-		categoryTag:   categoryTag,
+		dataUsecase:        dataUsecase,
+		acquirerDetailTags: acquirerDetailTags,
 	}
 }
 
@@ -35,13 +36,13 @@ func (uc *Acquirer) Parse(content string) (*entities.AcquirerDetail, error) {
 		}
 
 		switch data.Tag {
-		case uc.siteTag:
+		case uc.acquirerDetailTags.Site:
 			detail.Site = *data
-		case uc.mpanTag:
+		case uc.acquirerDetailTags.MPAN:
 			detail.MPAN = *data
-		case uc.terminalIDTag:
+		case uc.acquirerDetailTags.TerminalID:
 			detail.TerminalID = *data
-		case uc.categoryTag:
+		case uc.acquirerDetailTags.Category:
 			detail.Category = *data
 		}
 

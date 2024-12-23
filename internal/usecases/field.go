@@ -7,10 +7,11 @@ import (
 )
 
 type Field struct {
-	acquirerUsecase      AcquirerInterface
-	switchingUsecase     SwitchingInterface
-	qrisTags             *QRISTags
-	qrisCategoryContents *QRISCategoryContents
+	acquirerUsecase              AcquirerInterface
+	switchingUsecase             SwitchingInterface
+	additionalInformationUsecase AdditionalInformationInterface
+	qrisTags                     *QRISTags
+	qrisCategoryContents         *QRISCategoryContents
 }
 
 type FieldInterface interface {
@@ -18,23 +19,24 @@ type FieldInterface interface {
 	IsValid(qris *entities.QRIS, errs *[]string)
 }
 
-func NewField(acquirerUsecase AcquirerInterface, switchingUsecase SwitchingInterface, qrisTags *QRISTags, qrisCategoryContents *QRISCategoryContents) FieldInterface {
+func NewField(acquirerUsecase AcquirerInterface, switchingUsecase SwitchingInterface, additionalInformationUsecase AdditionalInformationInterface, qrisTags *QRISTags, qrisCategoryContents *QRISCategoryContents) FieldInterface {
 	return &Field{
-		acquirerUsecase:      acquirerUsecase,
-		switchingUsecase:     switchingUsecase,
-		qrisTags:             qrisTags,
-		qrisCategoryContents: qrisCategoryContents,
+		acquirerUsecase:              acquirerUsecase,
+		switchingUsecase:             switchingUsecase,
+		additionalInformationUsecase: additionalInformationUsecase,
+		qrisTags:                     qrisTags,
+		qrisCategoryContents:         qrisCategoryContents,
 	}
 }
 
 func (uc *Field) Assign(qris *entities.QRIS, data *entities.Data) error {
 	switch data.Tag {
-	case uc.qrisTags.VersionTag:
+	case uc.qrisTags.Version:
 		qris.Version = *data
-	case uc.qrisTags.CategoryTag:
+	case uc.qrisTags.Category:
 		qris.Category = *data
-	case uc.qrisTags.AcquirerTag, uc.qrisTags.AcquirerBankTransferTag:
-		acquirerDetail, err := uc.acquirerUsecase.Parse(data.Content)
+	case uc.qrisTags.Acquirer, uc.qrisTags.AcquirerBankTransfer:
+		detail, err := uc.acquirerUsecase.Parse(data.Content)
 		if err != nil {
 			return fmt.Errorf("invalid parse acquirer for content %s", data.Content)
 		}
@@ -42,10 +44,10 @@ func (uc *Field) Assign(qris *entities.QRIS, data *entities.Data) error {
 			Tag:     data.Tag,
 			Content: data.Content,
 			Data:    data.Data,
-			Detail:  *acquirerDetail,
+			Detail:  *detail,
 		}
-	case uc.qrisTags.SwitchingTag:
-		switchingDetail, err := uc.switchingUsecase.Parse(data.Content)
+	case uc.qrisTags.Switching:
+		detail, err := uc.switchingUsecase.Parse(data.Content)
 		if err != nil {
 			return fmt.Errorf("invalid parse switching for content %s", data.Content)
 		}
@@ -53,29 +55,38 @@ func (uc *Field) Assign(qris *entities.QRIS, data *entities.Data) error {
 			Tag:     data.Tag,
 			Content: data.Content,
 			Data:    data.Data,
-			Detail:  *switchingDetail,
+			Detail:  *detail,
 		}
-	case uc.qrisTags.MerchantCategoryCodeTag:
+	case uc.qrisTags.MerchantCategoryCode:
 		qris.MerchantCategoryCode = *data
-	case uc.qrisTags.CurrencyCodeTag:
+	case uc.qrisTags.CurrencyCode:
 		qris.CurrencyCode = *data
-	case uc.qrisTags.PaymentAmountTag:
+	case uc.qrisTags.PaymentAmount:
 		qris.PaymentAmount = *data
-	case uc.qrisTags.PaymentFeeCategoryTag:
+	case uc.qrisTags.PaymentFeeCategory:
 		qris.PaymentFeeCategory = *data
-	case uc.qrisTags.PaymentFeeFixedTag, uc.qrisTags.PaymentFeePercentTag:
+	case uc.qrisTags.PaymentFeeFixed, uc.qrisTags.PaymentFeePercent:
 		qris.PaymentFee = *data
-	case uc.qrisTags.CountryCodeTag:
+	case uc.qrisTags.CountryCode:
 		qris.CountryCode = *data
-	case uc.qrisTags.MerchantNameTag:
+	case uc.qrisTags.MerchantName:
 		qris.MerchantName = *data
-	case uc.qrisTags.MerchantCityTag:
+	case uc.qrisTags.MerchantCity:
 		qris.MerchantCity = *data
-	case uc.qrisTags.MerchantPostalCodeTag:
+	case uc.qrisTags.MerchantPostalCode:
 		qris.MerchantPostalCode = *data
-	case uc.qrisTags.AdditionalInformationTag:
-		qris.AdditionalInformation = *data
-	case uc.qrisTags.CRCCodeTag:
+	case uc.qrisTags.AdditionalInformation:
+		detail, err := uc.additionalInformationUsecase.Parse(data.Content)
+		if err != nil {
+			return fmt.Errorf("invalid parse additional information for content %s", data.Content)
+		}
+		qris.AdditionalInformation = entities.AdditionalInformation{
+			Tag:     data.Tag,
+			Content: data.Content,
+			Data:    data.Data,
+			Detail:  *detail,
+		}
+	case uc.qrisTags.CRCCode:
 		qris.CRCCode = *data
 	default:
 		// Ignore unrecognized tags
@@ -105,7 +116,7 @@ func (uc *Field) IsValid(qris *entities.QRIS, errs *[]string) {
 		isValidField(errs, qris.Acquirer.Detail.Site.Tag, "Acquirer site tag is missing")
 		isValidField(errs, qris.Acquirer.Detail.MPAN.Tag, "Acquirer MPAN tag is missing")
 		isValidField(errs, qris.Acquirer.Detail.TerminalID.Tag, "Acquirer terminal id tag is missing")
-		if qris.Acquirer.Tag == uc.qrisTags.AcquirerTag {
+		if qris.Acquirer.Tag == uc.qrisTags.Acquirer {
 			isValidField(errs, qris.Acquirer.Detail.Category.Tag, "Acquirer category tag is missing")
 
 			if qris.Switching.Tag == "" {

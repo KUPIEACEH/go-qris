@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/fyvri/go-qris/internal/config"
 	"github.com/fyvri/go-qris/internal/domain/entities"
 	"github.com/fyvri/go-qris/internal/usecases"
 	"github.com/fyvri/go-qris/pkg/models"
@@ -14,46 +13,77 @@ import (
 
 func TestNewQRIS(t *testing.T) {
 	qrisTags := &usecases.QRISTags{
-		VersionTag:               config.VersionTag,
-		CategoryTag:              config.CategoryTag,
-		AcquirerTag:              config.AcquirerTag,
-		AcquirerBankTransferTag:  config.AcquirerBankTransferTag,
-		SwitchingTag:             config.SwitchingTag,
-		MerchantCategoryCodeTag:  config.MerchantCategoryCodeTag,
-		CurrencyCodeTag:          config.CurrencyCodeTag,
-		PaymentAmountTag:         config.PaymentAmountTag,
-		PaymentFeeCategoryTag:    config.PaymentFeeCategoryTag,
-		PaymentFeeFixedTag:       config.PaymentFeeFixedTag,
-		PaymentFeePercentTag:     config.PaymentFeePercentTag,
-		CountryCodeTag:           config.CountryCodeTag,
-		MerchantNameTag:          config.MerchantNameTag,
-		MerchantCityTag:          config.MerchantCityTag,
-		MerchantPostalCodeTag:    config.MerchantPostalCodeTag,
-		AdditionalInformationTag: config.AdditionalInformationTag,
-		CRCCodeTag:               config.CRCCodeTag,
+		Version:               testVersionTag,
+		Category:              testCategoryTag,
+		Acquirer:              testAcquirerTag,
+		AcquirerBankTransfer:  testAcquirerBankTransferTag,
+		Switching:             testSwitchingTag,
+		MerchantCategoryCode:  testMerchantCategoryCodeTag,
+		CurrencyCode:          testCurrencyCodeTag,
+		PaymentAmount:         testPaymentAmountTag,
+		PaymentFeeCategory:    testPaymentFeeCategoryTag,
+		PaymentFeeFixed:       testPaymentFeeFixedTag,
+		PaymentFeePercent:     testPaymentFeePercentTag,
+		CountryCode:           testCountryCodeTag,
+		MerchantName:          testMerchantNameTag,
+		MerchantCity:          testMerchantCityTag,
+		MerchantPostalCode:    testMerchantPostalCodeTag,
+		AdditionalInformation: testAdditionalInformationTag,
+		CRCCode:               testCRCCodeTag,
 	}
 	qrisCategoryContents := &usecases.QRISCategoryContents{
-		Static:  config.CategoryStaticContent,
-		Dynamic: config.CategoryDynamicContent,
+		Static:  testCategoryStaticContent,
+		Dynamic: testCategoryDynamicContent,
 	}
 	qrisPaymentFeeCategoryContents := &usecases.QRISPaymentFeeCategoryContents{
-		Fixed:   config.PaymentFeeCategoryFixedContent,
-		Percent: config.PaymentFeeCategoryPercentContent,
+		Fixed:   testPaymentFeeCategoryFixedContent,
+		Percent: testPaymentFeeCategoryPercentContent,
+	}
+	acquirerDetailTags := &usecases.AcquirerDetailTags{
+		Site:       testAcquirerDetailSiteTag,
+		MPAN:       testAcquirerDetailMPANTag,
+		TerminalID: testAcquirerDetailTerminalIDTag,
+		Category:   testAcquirerDetailCategoryTag,
+	}
+	switchingDetailTags := &usecases.SwitchingDetailTags{
+		Site:     testSwitchingDetailSiteTag,
+		NMID:     testSwitchingDetailNMIDTag,
+		Category: testSwitchingDetailCategoryTag,
+	}
+	qrisAdditionalInformationDetailTags := &usecases.AdditionalInformationDetailTags{
+		BillNumber:                    testAdditionalInformationDetailBillNumber,
+		MobileNumber:                  testAdditionalInformationDetailMobileNumber,
+		StoreLabel:                    testAdditionalInformationDetailStoreLabel,
+		LoyaltyNumber:                 testAdditionalInformationDetailLoyaltyNumber,
+		ReferenceLabel:                testAdditionalInformationDetailReferenceLabel,
+		CustomerLabel:                 testAdditionalInformationDetailCustomerLabel,
+		TerminalLabel:                 testAdditionalInformationDetailTerminalLabel,
+		PurposeOfTransaction:          testAdditionalInformationDetailPurposeOfTransaction,
+		AdditionalConsumerDataRequest: testAdditionalInformationDetailAdditionalConsumerDataRequest,
+		MerchantTaxID:                 testAdditionalInformationDetailMerchantTaxID,
+		MerchantChannel:               testAdditionalInformationDetailMerchantChannel,
+		RFUStart:                      testAdditionalInformationDetailRFUStart,
+		RFUEnd:                        testAdditionalInformationDetailRFUEnd,
+		PaymentSystemSpecificStart:    testAdditionalInformationDetailPaymentSystemSpecificStart,
+		PaymentSystemSpecificEnd:      testAdditionalInformationDetailPaymentSystemSpecificEnd,
 	}
 
 	dataUsecase := usecases.NewData()
-	acquirerUsecase := usecases.NewAcquirer(dataUsecase, config.AcquirerDetailSiteTag, config.AcquirerDetailMPANTag, config.AcquirerDetailTerminalIDTag, config.AcquirerDetailCategoryTag)
-	switchingUsecase := usecases.NewSwitching(dataUsecase, config.SwitchingDetailSiteTag, config.SwitchingDetailNMIDTag, config.SwitchingDetailCategoryTag)
-	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, qrisTags, qrisCategoryContents)
+	acquirerUsecase := usecases.NewAcquirer(dataUsecase, acquirerDetailTags)
+	switchingUsecase := usecases.NewSwitching(dataUsecase, switchingDetailTags)
+	additionalInformationUsecase := usecases.NewAdditionalInformation(dataUsecase, qrisAdditionalInformationDetailTags)
+	fieldUsecase := usecases.NewField(acquirerUsecase, switchingUsecase, additionalInformationUsecase, qrisTags, qrisCategoryContents)
+	paymentFeeUsecase := usecases.NewPaymentFee(qrisTags, qrisPaymentFeeCategoryContents)
 	crc16CCITTUsecase := usecases.NewCRC16CCITT()
-	qrisUsecase := usecases.NewQRIS(
-		dataUsecase,
-		fieldUsecase,
-		crc16CCITTUsecase,
-		qrisTags,
-		qrisCategoryContents,
-		qrisPaymentFeeCategoryContents,
-	)
+
+	qrisUsecases := &usecases.QRISUsecases{
+		Data:                  dataUsecase,
+		Field:                 fieldUsecase,
+		PaymentFee:            paymentFeeUsecase,
+		AdditionalInformation: additionalInformationUsecase,
+		CRC16CCITT:            crc16CCITTUsecase,
+	}
+	qrisUsecase := usecases.NewQRIS(qrisUsecases, qrisTags, qrisCategoryContents, qrisPaymentFeeCategoryContents)
 	inputUtil := utils.NewInput()
 
 	tests := []struct {
@@ -212,13 +242,40 @@ func TestQRISModify(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
-		fields QRIS
-		args   args
-		want   *models.QRIS
+		name      string
+		fields    QRIS
+		args      args
+		want      *models.QRIS
+		wantError error
 	}{
 		{
-			name: "Success: Fixed Payment Fee",
+			name: "Error: Input Length",
+			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						alphabet := "abcdefghijklmnopqrstuvwxyz"
+						result := ""
+						for i := 0; i < 100; i++ {
+							result += string(alphabet[i%len(alphabet)])
+						}
+
+						return result
+					},
+				},
+				qrisUsecase: &mockQRISUsecase{
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
+						return &testQRISEntityModified
+					},
+				},
+			},
+			args: args{
+				qris: &testQRISModel,
+			},
+			want:      nil,
+			wantError: fmt.Errorf("input length exceeds the maximum permitted characters"),
+		},
+		{
+			name: "Success",
 			fields: QRIS{
 				inputUtil: &mockInputUtil{
 					SanitizeFunc: func(input string) string {
@@ -229,13 +286,15 @@ func TestQRISModify(t *testing.T) {
 							return testMerchantPostalCodeContent
 						case testPaymentFeeCategoryFixedContent:
 							return testPaymentFeeCategoryFixedContent
+						case testAdditionalInformationTerminalLabelContent:
+							return testAdditionalInformationTerminalLabelContent
 						default:
 							return ""
 						}
 					},
 				},
 				qrisUsecase: &mockQRISUsecase{
-					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 						return &testQRISEntityModified
 					},
 				},
@@ -243,7 +302,8 @@ func TestQRISModify(t *testing.T) {
 			args: args{
 				qris: &testQRISModel,
 			},
-			want: &testQRISModelModified,
+			want:      &testQRISModelModified,
+			wantError: nil,
 		},
 	}
 
@@ -255,9 +315,12 @@ func TestQRISModify(t *testing.T) {
 				inputUtil:         test.fields.inputUtil,
 			}
 
-			got := uc.Modify(test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue)
+			got, err, _ := uc.Modify(test.args.qris, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue, testAdditionalInformationTerminalLabelContent)
+			if err != nil && err.Error() != test.wantError.Error() {
+				t.Errorf(expectedErrorButGotMessage, "Modify()", test.wantError, err)
+			}
 			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf(expectedButGotMessage, "ToDynamic()", test.want, got)
+				t.Errorf(expectedButGotMessage, "Modify()", test.want, got)
 			}
 		})
 	}
@@ -333,11 +396,54 @@ func TestQRISConvert(t *testing.T) {
 		wantError error
 	}{
 		{
+			name: "Error: Input Length",
+			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						alphabet := "abcdefghijklmnopqrstuvwxyz"
+						result := ""
+						for i := 0; i < 100; i++ {
+							result += string(alphabet[i%len(alphabet)])
+						}
+
+						return result
+					},
+				},
+				qrisUsecase: &mockQRISUsecase{
+					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
+						return &testQRISEntity, nil, nil
+					},
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
+						return &testQRISEntityModified
+					},
+					ToStringFunc: func(qris *entities.QRIS) string {
+						return testQRISEntityModifiedString
+					},
+				},
+			},
+			args: args{
+				qrString: testQRISModelModifiedString,
+			},
+			want:      "",
+			wantError: fmt.Errorf("input length exceeds the maximum permitted characters"),
+		},
+		{
 			name: "Error: s.qrisUsecase.Parse()",
 			fields: QRIS{
 				inputUtil: &mockInputUtil{
 					SanitizeFunc: func(input string) string {
-						return testQRISEntityString
+						switch input {
+						case testQRISEntityString:
+							return testQRISEntityString
+						case testMerchantCityContent:
+							return testMerchantCityContent
+						case testMerchantPostalCodeContent:
+							return testMerchantPostalCodeContent
+						case testPaymentFeeCategoryFixedContent:
+							return testPaymentFeeCategoryFixedContent
+						default:
+							return ""
+						}
 					},
 				},
 				qrisUsecase: &mockQRISUsecase{
@@ -375,7 +481,7 @@ func TestQRISConvert(t *testing.T) {
 					ParseFunc: func(qrString string) (*entities.QRIS, error, *[]string) {
 						return &testQRISEntity, nil, nil
 					},
-					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 						return &testQRISEntityModified
 					},
 					ToStringFunc: func(qris *entities.QRIS) string {
@@ -399,7 +505,7 @@ func TestQRISConvert(t *testing.T) {
 				inputUtil:         test.fields.inputUtil,
 			}
 
-			got, err, _ := uc.Convert(test.args.qrString, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue)
+			got, err, _ := uc.Convert(test.args.qrString, testMerchantCityContent, testMerchantPostalCodeContent, testPaymentAmountValue, testPaymentFeeCategoryFixedContent, testPaymentFeeValue, testAdditionalInformationTerminalLabelContent)
 			if err != nil && err.Error() != test.wantError.Error() {
 				t.Errorf(expectedErrorButGotMessage, "Convert()", test.wantError, err)
 			}

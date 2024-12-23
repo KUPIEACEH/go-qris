@@ -5,22 +5,24 @@ import (
 )
 
 type Switching struct {
-	dataUsecase DataInterface
-	siteTag     string
-	nmidTag     string
-	categoryTag string
+	dataUsecase         DataInterface
+	switchingDetailTags *SwitchingDetailTags
+}
+
+type SwitchingDetailTags struct {
+	Site     string
+	NMID     string
+	Category string
 }
 
 type SwitchingInterface interface {
 	Parse(content string) (*entities.SwitchingDetail, error)
 }
 
-func NewSwitching(dataUsecase DataInterface, siteTag string, nmidTag string, categoryTag string) SwitchingInterface {
+func NewSwitching(dataUsecase DataInterface, switchingDetailTags *SwitchingDetailTags) SwitchingInterface {
 	return &Switching{
-		dataUsecase: dataUsecase,
-		siteTag:     siteTag,
-		nmidTag:     nmidTag,
-		categoryTag: categoryTag,
+		dataUsecase:         dataUsecase,
+		switchingDetailTags: switchingDetailTags,
 	}
 }
 
@@ -33,11 +35,11 @@ func (uc *Switching) Parse(content string) (*entities.SwitchingDetail, error) {
 		}
 
 		switch data.Tag {
-		case uc.siteTag:
+		case uc.switchingDetailTags.Site:
 			detail.Site = *data
-		case uc.nmidTag:
+		case uc.switchingDetailTags.NMID:
 			detail.NMID = *data
-		case uc.categoryTag:
+		case uc.switchingDetailTags.Category:
 			detail.Category = *data
 		}
 

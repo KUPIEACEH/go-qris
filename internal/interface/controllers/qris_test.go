@@ -152,6 +152,7 @@ func TestQRISConvert(t *testing.T) {
 		paymentAmount      uint32
 		paymentFeeCategory string
 		paymentFee         uint32
+		terminalLabel      string
 	}
 
 	type want struct {
@@ -164,6 +165,13 @@ func TestQRISConvert(t *testing.T) {
 	testPaymentAmount := uint32(1337)
 	testPaymentFeeCategory := "FIXED"
 	testPaymentFee := uint32(666)
+	testTerminalLabel := "A01"
+
+	alphabet := "abcdefghijklmnopqrstuvwxyz"
+	testOverInputLength := ""
+	for i := 0; i < 100; i++ {
+		testOverInputLength += string(alphabet[i%len(alphabet)])
+	}
 
 	tests := []struct {
 		name      string
@@ -172,6 +180,30 @@ func TestQRISConvert(t *testing.T) {
 		want      want
 		wantError error
 	}{
+		{
+			name: "Error: Input Length",
+			fields: QRIS{
+				inputUtil: &mockInputUtil{
+					SanitizeFunc: func(input string) string {
+						return testOverInputLength
+					},
+				},
+			},
+			args: args{
+				qrString:           testQRISString,
+				merchantCity:       testOverInputLength,
+				merchantPostalCode: testOverInputLength,
+				paymentAmount:      testPaymentAmount,
+				paymentFeeCategory: testPaymentFeeCategory,
+				paymentFee:         testPaymentFee,
+				terminalLabel:      testOverInputLength,
+			},
+			want: want{
+				qrString: "",
+				qrCode:   "",
+			},
+			wantError: fmt.Errorf("input length exceeds the maximum permitted characters"),
+		},
 		{
 			name: testNameErrorParse,
 			fields: QRIS{
@@ -205,18 +237,7 @@ func TestQRISConvert(t *testing.T) {
 			fields: QRIS{
 				inputUtil: &mockInputUtil{
 					SanitizeFunc: func(input string) string {
-						switch input {
-						case testQRISString:
-							return testQRISString
-						case testMerchantCity:
-							return testMerchantCity
-						case testMerchantPostalCode:
-							return testMerchantPostalCode
-						case testPaymentFeeCategory:
-							return testPaymentFeeCategory
-						default:
-							return ""
-						}
+						return input
 					},
 				},
 				qrisUsecase: &mockQRISUsecase{
@@ -229,7 +250,7 @@ func TestQRISConvert(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 						return &entities.QRIS{
 							Version: entities.Data{
 								Tag:     "",
@@ -296,7 +317,7 @@ func TestQRISConvert(t *testing.T) {
 							},
 						}, nil, nil
 					},
-					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+					ModifyFunc: func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 						return &entities.QRIS{
 							Version: entities.Data{
 								Tag:     "",
@@ -318,6 +339,7 @@ func TestQRISConvert(t *testing.T) {
 				paymentAmount:      testPaymentAmount,
 				paymentFeeCategory: testPaymentFeeCategory,
 				paymentFee:         testPaymentFee,
+				terminalLabel:      testTerminalLabel,
 			},
 			want: want{
 				qrString: testQRISModifiedString,
@@ -337,7 +359,7 @@ func TestQRISConvert(t *testing.T) {
 				qrCodeSize:  test.fields.qrCodeSize,
 			}
 
-			got1, got2, err, _ := c.Convert(test.args.qrString, test.args.merchantCity, test.args.merchantPostalCode, test.args.paymentAmount, test.args.paymentFeeCategory, test.args.paymentFee)
+			got1, got2, err, _ := c.Convert(test.args.qrString, test.args.merchantCity, test.args.merchantPostalCode, test.args.paymentAmount, test.args.paymentFeeCategory, test.args.paymentFee, test.args.terminalLabel)
 			if err != nil && err.Error() != test.wantError.Error() {
 				t.Errorf(expectedErrorButGotMessage, funcName, test.wantError, err)
 			}

@@ -17,42 +17,40 @@ func TestNewAcquirer(t *testing.T) {
 		{
 			name: "Success: No Field",
 			fields: Acquirer{
-				dataUsecase:   &Data{},
-				siteTag:       "",
-				mpanTag:       "",
-				terminalIDTag: "",
-				categoryTag:   "",
+				dataUsecase:        &Data{},
+				acquirerDetailTags: &AcquirerDetailTags{},
 			},
 			want: &Acquirer{
-				dataUsecase:   &Data{},
-				siteTag:       "",
-				mpanTag:       "",
-				terminalIDTag: "",
-				categoryTag:   "",
+				dataUsecase:        &Data{},
+				acquirerDetailTags: &AcquirerDetailTags{},
 			},
 		},
 		{
 			name: "Success: With Field",
 			fields: Acquirer{
-				dataUsecase:   &Data{},
-				siteTag:       testAcquirerDetailSiteTag,
-				mpanTag:       testAcquirerDetailMPANTag,
-				terminalIDTag: testAcquirerDetailTerminalIDTag,
-				categoryTag:   testAcquirerDetailCategoryTag,
+				dataUsecase: &Data{},
+				acquirerDetailTags: &AcquirerDetailTags{
+					Site:       testAcquirerDetailSiteTag,
+					MPAN:       testAcquirerDetailMPANTag,
+					TerminalID: testAcquirerDetailTerminalIDTag,
+					Category:   testAcquirerDetailCategoryTag,
+				},
 			},
 			want: &Acquirer{
-				dataUsecase:   &Data{},
-				siteTag:       testAcquirerDetailSiteTag,
-				mpanTag:       testAcquirerDetailMPANTag,
-				terminalIDTag: testAcquirerDetailTerminalIDTag,
-				categoryTag:   testAcquirerDetailCategoryTag,
+				dataUsecase: &Data{},
+				acquirerDetailTags: &AcquirerDetailTags{
+					Site:       testAcquirerDetailSiteTag,
+					MPAN:       testAcquirerDetailMPANTag,
+					TerminalID: testAcquirerDetailTerminalIDTag,
+					Category:   testAcquirerDetailCategoryTag,
+				},
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			uc := NewAcquirer(test.fields.dataUsecase, test.fields.siteTag, test.fields.mpanTag, test.fields.terminalIDTag, test.fields.categoryTag)
+			uc := NewAcquirer(test.fields.dataUsecase, test.fields.acquirerDetailTags)
 
 			if uc == nil {
 				t.Errorf(expectedReturnNonNil, "NewAcquirer", "AcquirerInterface")
@@ -90,10 +88,12 @@ func TestAcquirerParse(t *testing.T) {
 						return nil, fmt.Errorf("invalid format code")
 					},
 				},
-				siteTag:       testAcquirerDetailSiteTag,
-				mpanTag:       testAcquirerDetailMPANTag,
-				terminalIDTag: testAcquirerDetailTerminalIDTag,
-				categoryTag:   testAcquirerDetailCategoryTag,
+				acquirerDetailTags: &AcquirerDetailTags{
+					Site:       testAcquirerDetailSiteTag,
+					MPAN:       testAcquirerDetailMPANTag,
+					TerminalID: testAcquirerDetailTerminalIDTag,
+					Category:   testAcquirerDetailCategoryTag,
+				},
 			},
 			args: args{
 				content: testQRIS.Acquirer.Content,
@@ -120,10 +120,12 @@ func TestAcquirerParse(t *testing.T) {
 						}
 					},
 				},
-				siteTag:       testAcquirerDetailSiteTag,
-				mpanTag:       testAcquirerDetailMPANTag,
-				terminalIDTag: testAcquirerDetailTerminalIDTag,
-				categoryTag:   testAcquirerDetailCategoryTag,
+				acquirerDetailTags: &AcquirerDetailTags{
+					Site:       testAcquirerDetailSiteTag,
+					MPAN:       testAcquirerDetailMPANTag,
+					TerminalID: testAcquirerDetailTerminalIDTag,
+					Category:   testAcquirerDetailCategoryTag,
+				},
 			},
 			args: args{
 				content: testQRIS.Acquirer.Content,
@@ -136,11 +138,13 @@ func TestAcquirerParse(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &Acquirer{
-				dataUsecase:   test.fields.dataUsecase,
-				siteTag:       test.fields.siteTag,
-				mpanTag:       test.fields.mpanTag,
-				terminalIDTag: test.fields.terminalIDTag,
-				categoryTag:   test.fields.categoryTag,
+				dataUsecase: test.fields.dataUsecase,
+				acquirerDetailTags: &AcquirerDetailTags{
+					Site:       testAcquirerDetailSiteTag,
+					MPAN:       testAcquirerDetailMPANTag,
+					TerminalID: testAcquirerDetailTerminalIDTag,
+					Category:   testAcquirerDetailCategoryTag,
+				},
 			}
 
 			got, err := uc.Parse(test.args.content)

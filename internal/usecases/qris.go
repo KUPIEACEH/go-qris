@@ -7,26 +7,30 @@ import (
 )
 
 type QRIS struct {
-	dataUsecase                    DataInterface
-	fieldUsecase                   FieldInterface
-	crc16CCITTUsecase              CRC16CCITTInterface
+	qrisUsecases                   *QRISUsecases
 	qrisTags                       *QRISTags
 	qrisCategoryContents           *QRISCategoryContents
 	qrisPaymentFeeCategoryContents *QRISPaymentFeeCategoryContents
 }
 
+type QRISUsecases struct {
+	Data                  DataInterface
+	Field                 FieldInterface
+	PaymentFee            PaymentFeeInterface
+	AdditionalInformation AdditionalInformationInterface
+	CRC16CCITT            CRC16CCITTInterface
+}
+
 type QRISInterface interface {
 	Parse(qrString string) (*entities.QRIS, error, *[]string)
 	IsValid(qris *entities.QRIS) bool
-	Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+	Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS
 	ToString(qris *entities.QRIS) string
 }
 
-func NewQRIS(dataUsecase DataInterface, fieldUsecase FieldInterface, crc16CCITTUsecase CRC16CCITTInterface, qrisTags *QRISTags, qrisCategoryContents *QRISCategoryContents, qrisPaymentFeeCategoryContents *QRISPaymentFeeCategoryContents) QRISInterface {
+func NewQRIS(qrisUsecases *QRISUsecases, qrisTags *QRISTags, qrisCategoryContents *QRISCategoryContents, qrisPaymentFeeCategoryContents *QRISPaymentFeeCategoryContents) QRISInterface {
 	return &QRIS{
-		dataUsecase:                    dataUsecase,
-		fieldUsecase:                   fieldUsecase,
-		crc16CCITTUsecase:              crc16CCITTUsecase,
+		qrisUsecases:                   qrisUsecases,
 		qrisTags:                       qrisTags,
 		qrisCategoryContents:           qrisCategoryContents,
 		qrisPaymentFeeCategoryContents: qrisPaymentFeeCategoryContents,
@@ -36,12 +40,12 @@ func NewQRIS(dataUsecase DataInterface, fieldUsecase FieldInterface, crc16CCITTU
 func (uc *QRIS) Parse(qrString string) (*entities.QRIS, error, *[]string) {
 	var qris entities.QRIS
 	for len(qrString) > 0 {
-		data, err := uc.dataUsecase.Parse(qrString)
+		data, err := uc.qrisUsecases.Data.Parse(qrString)
 		if err != nil {
 			return nil, err, nil
 		}
 
-		if err := uc.fieldUsecase.Assign(&qris, data); err != nil {
+		if err := uc.qrisUsecases.Field.Assign(&qris, data); err != nil {
 			return nil, err, nil
 		}
 
@@ -49,7 +53,7 @@ func (uc *QRIS) Parse(qrString string) (*entities.QRIS, error, *[]string) {
 	}
 
 	var errs []string
-	if uc.fieldUsecase.IsValid(&qris, &errs); errs != nil {
+	if uc.qrisUsecases.Field.IsValid(&qris, &errs); errs != nil {
 		return nil, fmt.Errorf("invalid QRIS format"), &errs
 	}
 
@@ -73,10 +77,10 @@ func (uc *QRIS) IsValid(qris *entities.QRIS) bool {
 		qris.AdditionalInformation.Data +
 		qris.CRCCode.Tag + "04"
 
-	return qris.CRCCode.Content == uc.crc16CCITTUsecase.GenerateCode(qrStringConverted)
+	return qris.CRCCode.Content == uc.qrisUsecases.CRC16CCITT.GenerateCode(qrStringConverted)
 }
 
-func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 	qris.Category = entities.Data{
 		Tag:     qris.Category.Tag,
 		Content: uc.qrisCategoryContents.Dynamic,
@@ -84,52 +88,35 @@ func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPo
 	}
 
 	content := fmt.Sprintf("%d", paymentAmountValue)
-	qris.PaymentAmount = *uc.dataUsecase.ModifyContent(&entities.Data{
-		Tag:     uc.qrisTags.PaymentAmountTag,
+	qris.PaymentAmount = *uc.qrisUsecases.Data.ModifyContent(&entities.Data{
+		Tag:     uc.qrisTags.PaymentAmount,
 		Content: content,
-		Data:    uc.qrisTags.PaymentAmountTag + fmt.Sprintf("%02d", len(content)) + content,
+		Data:    uc.qrisTags.PaymentAmount + fmt.Sprintf("%02d", len(content)) + content,
 	}, content)
 
 	qris.PaymentFeeCategory = entities.Data{}
 	qris.PaymentFee = entities.Data{}
-	if qris.Acquirer.Tag == uc.qrisTags.AcquirerTag {
+	if qris.Acquirer.Tag == uc.qrisTags.Acquirer {
 		if merchantCityValue != "" {
-			qris.MerchantCity = *uc.dataUsecase.ModifyContent(&qris.MerchantCity, merchantCityValue)
+			qris.MerchantCity = *uc.qrisUsecases.Data.ModifyContent(&qris.MerchantCity, merchantCityValue)
 		}
 		if merchantPostalCodeValue != "" {
-			qris.MerchantPostalCode = *uc.dataUsecase.ModifyContent(&qris.MerchantPostalCode, merchantPostalCodeValue)
+			qris.MerchantPostalCode = *uc.qrisUsecases.Data.ModifyContent(&qris.MerchantPostalCode, merchantPostalCodeValue)
 		}
 
 		if paymentFeeCategoryValue != "" && paymentFeeValue > 0 {
-			paymentFeeCategoryTag := ""
-			paymentFeeCategoryContent := ""
-			paymentFeeCategoryContentLength := ""
-			paymentFeeTag := ""
-			if paymentFeeCategoryValue == "FIXED" {
-				paymentFeeCategoryTag = uc.qrisTags.PaymentFeeCategoryTag
-				paymentFeeCategoryContent = uc.qrisPaymentFeeCategoryContents.Fixed
-				paymentFeeCategoryContentLength = fmt.Sprintf("%02d", len(paymentFeeCategoryContent))
-				paymentFeeTag = uc.qrisTags.PaymentFeeFixedTag
-			} else if paymentFeeCategoryValue == "PERCENT" {
-				paymentFeeCategoryTag = uc.qrisTags.PaymentFeeCategoryTag
-				paymentFeeCategoryContent = uc.qrisPaymentFeeCategoryContents.Percent
-				paymentFeeCategoryContentLength = fmt.Sprintf("%02d", len(paymentFeeCategoryContent))
-				paymentFeeTag = uc.qrisTags.PaymentFeePercentTag
-			}
+			qris = uc.qrisUsecases.PaymentFee.Modify(qris, paymentFeeCategoryValue, paymentFeeValue)
+		}
+	}
 
-			qris.PaymentFeeCategory = entities.Data{
-				Tag:     paymentFeeCategoryTag,
-				Content: paymentFeeCategoryContent,
-				Data:    paymentFeeCategoryTag + paymentFeeCategoryContentLength + paymentFeeCategoryContent,
-			}
-			if qris.PaymentFeeCategory.Tag != "" {
-				content = fmt.Sprintf("%d", paymentFeeValue)
-				qris.PaymentFee = entities.Data{
-					Tag:     paymentFeeTag,
-					Content: content,
-					Data:    paymentFeeTag + fmt.Sprintf("%02d", len(content)) + content,
-				}
-			}
+	if qris.AdditionalInformation.Detail.TerminalLabel.Tag != "" && terminalLabelValue != "" {
+		qris.AdditionalInformation.Detail.TerminalLabel = *uc.qrisUsecases.Data.ModifyContent(&qris.AdditionalInformation.Detail.TerminalLabel, terminalLabelValue)
+		qrisAdditionalInformationContent := uc.qrisUsecases.AdditionalInformation.ToString(&qris.AdditionalInformation.Detail)
+		qris.AdditionalInformation = entities.AdditionalInformation{
+			Tag:     uc.qrisTags.AdditionalInformation,
+			Content: qrisAdditionalInformationContent,
+			Data:    uc.qrisTags.AdditionalInformation + fmt.Sprintf("%02d", len(qrisAdditionalInformationContent)) + qrisAdditionalInformationContent,
+			Detail:  qris.AdditionalInformation.Detail,
 		}
 	}
 
@@ -148,8 +135,8 @@ func (uc *QRIS) Modify(qris *entities.QRIS, merchantCityValue string, merchantPo
 		qris.MerchantPostalCode.Data +
 		qris.AdditionalInformation.Data +
 		qris.CRCCode.Tag + "04"
-	content = uc.crc16CCITTUsecase.GenerateCode(qrStringConverted)
-	qris.CRCCode = *uc.dataUsecase.ModifyContent(&qris.CRCCode, content)
+	content = uc.qrisUsecases.CRC16CCITT.GenerateCode(qrStringConverted)
+	qris.CRCCode = *uc.qrisUsecases.Data.ModifyContent(&qris.CRCCode, content)
 
 	return qris
 }

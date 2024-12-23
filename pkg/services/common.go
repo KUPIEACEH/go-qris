@@ -111,10 +111,77 @@ func mapQRISEntityToModel(qris *entities.QRIS) *models.QRIS {
 			Content: qris.MerchantPostalCode.Content,
 			Data:    qris.MerchantPostalCode.Data,
 		},
-		AdditionalInformation: models.Data{
+		AdditionalInformation: models.AdditionalInformation{
 			Tag:     qris.AdditionalInformation.Tag,
 			Content: qris.AdditionalInformation.Content,
 			Data:    qris.AdditionalInformation.Data,
+			Detail: models.AdditionalInformationDetail{
+				BillNumber: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.BillNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.BillNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.BillNumber.Data,
+				},
+				MobileNumber: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.MobileNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.MobileNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.MobileNumber.Data,
+				},
+				StoreLabel: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.StoreLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.StoreLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.StoreLabel.Data,
+				},
+				LoyaltyNumber: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.LoyaltyNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.LoyaltyNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.LoyaltyNumber.Data,
+				},
+				ReferenceLabel: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.ReferenceLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.ReferenceLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.ReferenceLabel.Data,
+				},
+				CustomerLabel: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.CustomerLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.CustomerLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.CustomerLabel.Data,
+				},
+				TerminalLabel: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.TerminalLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.TerminalLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.TerminalLabel.Data,
+				},
+				PurposeOfTransaction: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.PurposeOfTransaction.Tag,
+					Content: qris.AdditionalInformation.Detail.PurposeOfTransaction.Content,
+					Data:    qris.AdditionalInformation.Detail.PurposeOfTransaction.Data,
+				},
+				AdditionalConsumerDataRequest: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Tag,
+					Content: qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Content,
+					Data:    qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Data,
+				},
+				MerchantTaxID: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.MerchantTaxID.Tag,
+					Content: qris.AdditionalInformation.Detail.MerchantTaxID.Content,
+					Data:    qris.AdditionalInformation.Detail.MerchantTaxID.Data,
+				},
+				MerchantChannel: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.MerchantChannel.Tag,
+					Content: qris.AdditionalInformation.Detail.MerchantChannel.Content,
+					Data:    qris.AdditionalInformation.Detail.MerchantChannel.Data,
+				},
+				RFU: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.RFU.Tag,
+					Content: qris.AdditionalInformation.Detail.RFU.Content,
+					Data:    qris.AdditionalInformation.Detail.RFU.Data,
+				},
+				PaymentSystemSpecific: models.Data{
+					Tag:     qris.AdditionalInformation.Detail.PaymentSystemSpecific.Tag,
+					Content: qris.AdditionalInformation.Detail.PaymentSystemSpecific.Content,
+					Data:    qris.AdditionalInformation.Detail.PaymentSystemSpecific.Data,
+				},
+			},
 		},
 		CRCCode: models.Data{
 			Tag:     qris.CRCCode.Tag,
@@ -230,10 +297,77 @@ func mapQRISModelToEntity(qris *models.QRIS) *entities.QRIS {
 			Content: qris.MerchantPostalCode.Content,
 			Data:    qris.MerchantPostalCode.Data,
 		},
-		AdditionalInformation: entities.Data{
+		AdditionalInformation: entities.AdditionalInformation{
 			Tag:     qris.AdditionalInformation.Tag,
 			Content: qris.AdditionalInformation.Content,
 			Data:    qris.AdditionalInformation.Data,
+			Detail: entities.AdditionalInformationDetail{
+				BillNumber: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.BillNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.BillNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.BillNumber.Data,
+				},
+				MobileNumber: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.MobileNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.MobileNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.MobileNumber.Data,
+				},
+				StoreLabel: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.StoreLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.StoreLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.StoreLabel.Data,
+				},
+				LoyaltyNumber: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.LoyaltyNumber.Tag,
+					Content: qris.AdditionalInformation.Detail.LoyaltyNumber.Content,
+					Data:    qris.AdditionalInformation.Detail.LoyaltyNumber.Data,
+				},
+				ReferenceLabel: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.ReferenceLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.ReferenceLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.ReferenceLabel.Data,
+				},
+				CustomerLabel: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.CustomerLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.CustomerLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.CustomerLabel.Data,
+				},
+				TerminalLabel: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.TerminalLabel.Tag,
+					Content: qris.AdditionalInformation.Detail.TerminalLabel.Content,
+					Data:    qris.AdditionalInformation.Detail.TerminalLabel.Data,
+				},
+				PurposeOfTransaction: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.PurposeOfTransaction.Tag,
+					Content: qris.AdditionalInformation.Detail.PurposeOfTransaction.Content,
+					Data:    qris.AdditionalInformation.Detail.PurposeOfTransaction.Data,
+				},
+				AdditionalConsumerDataRequest: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Tag,
+					Content: qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Content,
+					Data:    qris.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Data,
+				},
+				MerchantTaxID: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.MerchantTaxID.Tag,
+					Content: qris.AdditionalInformation.Detail.MerchantTaxID.Content,
+					Data:    qris.AdditionalInformation.Detail.MerchantTaxID.Data,
+				},
+				MerchantChannel: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.MerchantChannel.Tag,
+					Content: qris.AdditionalInformation.Detail.MerchantChannel.Content,
+					Data:    qris.AdditionalInformation.Detail.MerchantChannel.Data,
+				},
+				RFU: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.RFU.Tag,
+					Content: qris.AdditionalInformation.Detail.RFU.Content,
+					Data:    qris.AdditionalInformation.Detail.RFU.Data,
+				},
+				PaymentSystemSpecific: entities.Data{
+					Tag:     qris.AdditionalInformation.Detail.PaymentSystemSpecific.Tag,
+					Content: qris.AdditionalInformation.Detail.PaymentSystemSpecific.Content,
+					Data:    qris.AdditionalInformation.Detail.PaymentSystemSpecific.Data,
+				},
+			},
 		},
 		CRCCode: entities.Data{
 			Tag:     qris.CRCCode.Tag,

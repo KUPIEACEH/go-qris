@@ -42,6 +42,7 @@ func Setup(env *bootstrap.Env, ginEngine *gin.Engine) {
 							"payment_amount":       1337,
 							"payment_fee_category": "FIXED",
 							"payment_fee":          666,
+							"terminal_label":       "Made with love by Alvriyanto Azis",
 						},
 					},
 					map[string]any{

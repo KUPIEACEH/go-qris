@@ -34,10 +34,7 @@ func (uc *CRC16CCITT) GenerateCode(code string) string {
 	}
 
 	hex := crc & 0xFFFF
-	hexStr := strings.ToUpper(fmt.Sprintf("%X", hex))
-	if len(hexStr) == 3 {
-		hexStr = "0" + hexStr
-	}
+	hexStr := strings.ToUpper(fmt.Sprintf("%04X", hex))
 
 	return hexStr
 }

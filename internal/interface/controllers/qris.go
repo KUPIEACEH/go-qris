@@ -18,7 +18,7 @@ type QRIS struct {
 
 type QRISInterface interface {
 	Parse(qrisString string) (*entities.QRIS, error, *[]string)
-	Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string)
+	Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) (string, string, error, *[]string)
 	IsValid(qrisString string) (error, *[]string)
 }
 
@@ -37,17 +37,32 @@ func (c *QRIS) Parse(qrisString string) (*entities.QRIS, error, *[]string) {
 	return c.qrisUsecase.Parse(qrisString)
 }
 
-func (c *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
+func (c *QRIS) Convert(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) (string, string, error, *[]string) {
+	errs := &[]string{}
+	merchantCityValue = c.inputUtil.Sanitize(merchantCityValue)
+	if len(merchantCityValue) > 15 {
+		*errs = append(*errs, "merchant city exceeds 15 characters")
+	}
+	merchantPostalCodeValue = c.inputUtil.Sanitize(merchantPostalCodeValue)
+	if len(merchantPostalCodeValue) > 10 {
+		*errs = append(*errs, "merchant postal code exceeds 10 characters")
+	}
+	terminalLabelValue = c.inputUtil.Sanitize(terminalLabelValue)
+	if len(terminalLabelValue) > 99 {
+		*errs = append(*errs, "terminal label exceeds 99 characters")
+	}
+	if len(*errs) > 0 {
+		return "", "", fmt.Errorf("input length exceeds the maximum permitted characters"), errs
+	}
+
 	qrisString = c.inputUtil.Sanitize(qrisString)
 	qris, err, errs := c.qrisUsecase.Parse(qrisString)
 	if err != nil {
 		return "", "", err, errs
 	}
 
-	merchantCityValue = c.inputUtil.Sanitize(merchantCityValue)
-	merchantPostalCodeValue = c.inputUtil.Sanitize(merchantPostalCodeValue)
 	paymentFeeCategoryValue = strings.ToUpper(c.inputUtil.Sanitize(paymentFeeCategoryValue))
-	qris = c.qrisUsecase.Modify(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+	qris = c.qrisUsecase.Modify(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue, terminalLabelValue)
 	qrisString = c.qrisUsecase.ToString(qris)
 
 	qrCode, err := c.qrCodeUtil.StringToImageBase64(qrisString, c.qrCodeSize)

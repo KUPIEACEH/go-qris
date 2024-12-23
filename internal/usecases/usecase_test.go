@@ -10,34 +10,49 @@ var (
 	expectedTypeAssertionErrorMessage = "Expected type assertion error, but got = %v"
 	expectedReturnNonNil              = "Expected %v to return a non-nil %v"
 
-	testVersionTag                       = "00"
-	testCategoryTag                      = "01"
-	testAcquirerTag                      = "26"
-	testAcquirerBankTransferTag          = "40"
-	testSwitchingTag                     = "51"
-	testMerchantCategoryCodeTag          = "52"
-	testCurrencyCodeTag                  = "53"
-	testPaymentAmountTag                 = "54"
-	testPaymentFeeCategoryTag            = "55"
-	testPaymentFeeFixedTag               = "56"
-	testPaymentFeePercentTag             = "57"
-	testCountryCodeTag                   = "58"
-	testMerchantNameTag                  = "59"
-	testMerchantCityTag                  = "60"
-	testMerchantPostalCodeTag            = "61"
-	testAdditionalInformationTag         = "62"
-	testCRCCodeTag                       = "63"
-	testAcquirerDetailSiteTag            = "00"
-	testAcquirerDetailMPANTag            = "01"
-	testAcquirerDetailTerminalIDTag      = "02"
-	testAcquirerDetailCategoryTag        = "03"
-	testSwitchingDetailSiteTag           = "00"
-	testSwitchingDetailNMIDTag           = "02"
-	testSwitchingDetailCategoryTag       = "03"
-	testCategoryStaticContent            = "11"
-	testCategoryDynamicContent           = "12"
-	testPaymentFeeCategoryFixedContent   = "02"
-	testPaymentFeeCategoryPercentContent = "03"
+	testVersionTag                                                  = "00"
+	testCategoryTag                                                 = "01"
+	testAcquirerTag                                                 = "26"
+	testAcquirerBankTransferTag                                     = "40"
+	testSwitchingTag                                                = "51"
+	testMerchantCategoryCodeTag                                     = "52"
+	testCurrencyCodeTag                                             = "53"
+	testPaymentAmountTag                                            = "54"
+	testPaymentFeeCategoryTag                                       = "55"
+	testPaymentFeeFixedTag                                          = "56"
+	testPaymentFeePercentTag                                        = "57"
+	testCountryCodeTag                                              = "58"
+	testMerchantNameTag                                             = "59"
+	testMerchantCityTag                                             = "60"
+	testMerchantPostalCodeTag                                       = "61"
+	testAdditionalInformationTag                                    = "62"
+	testCRCCodeTag                                                  = "63"
+	testAcquirerDetailSiteTag                                       = "00"
+	testAcquirerDetailMPANTag                                       = "01"
+	testAcquirerDetailTerminalIDTag                                 = "02"
+	testAcquirerDetailCategoryTag                                   = "03"
+	testSwitchingDetailSiteTag                                      = "00"
+	testSwitchingDetailNMIDTag                                      = "02"
+	testSwitchingDetailCategoryTag                                  = "03"
+	testCategoryStaticContent                                       = "11"
+	testCategoryDynamicContent                                      = "12"
+	testPaymentFeeCategoryFixedContent                              = "02"
+	testPaymentFeeCategoryPercentContent                            = "03"
+	testAdditionalInformationDetailBillNumberTag                    = "01"
+	testAdditionalInformationDetailMobileNumberTag                  = "02"
+	testAdditionalInformationDetailStoreLabelTag                    = "03"
+	testAdditionalInformationDetailLoyaltyNumberTag                 = "04"
+	testAdditionalInformationDetailReferenceLabelTag                = "05"
+	testAdditionalInformationDetailCustomerLabelTag                 = "06"
+	testAdditionalInformationDetailTerminalLabelTag                 = "07"
+	testAdditionalInformationDetailPurposeOfTransactionTag          = "08"
+	testAdditionalInformationDetailAdditionalConsumerDataRequestTag = "09"
+	testAdditionalInformationDetailMerchantTaxIDTag                 = "10"
+	testAdditionalInformationDetailMerchantChannelTag               = "11"
+	testAdditionalInformationDetailRFUTagStart                      = "12"
+	testAdditionalInformationDetailRFUTagEnd                        = "49"
+	testAdditionalInformationDetailPaymentSystemSpecificTagStart    = "50"
+	testAdditionalInformationDetailPaymentSystemSpecificTagEnd      = "99"
 
 	testAcquirerDetail = entities.AcquirerDetail{
 		Site: entities.Data{
@@ -148,10 +163,17 @@ var (
 			Content: "55000",
 			Data:    testMerchantPostalCodeTag + "0555000",
 		},
-		AdditionalInformation: entities.Data{
+		AdditionalInformation: entities.AdditionalInformation{
 			Tag:     testAdditionalInformationTag,
 			Content: "0703A01",
 			Data:    testAdditionalInformationTag + "070703A01",
+			Detail: entities.AdditionalInformationDetail{
+				TerminalLabel: entities.Data{
+					Tag:     testAdditionalInformationDetailTerminalLabelTag,
+					Content: "A01",
+					Data:    testAdditionalInformationDetailTerminalLabelTag + "07A01",
+				},
+			},
 		},
 		CRCCode: entities.Data{
 			Tag:     testCRCCodeTag,
@@ -194,6 +216,36 @@ func (m *mockSwitchingUsecase) Parse(content string) (*entities.SwitchingDetail,
 		return m.ParseFunc(content)
 	}
 	return nil, nil
+}
+
+type mockPaymentFeeUsecase struct {
+	ModifyFunc func(qris *entities.QRIS, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+}
+
+func (m *mockPaymentFeeUsecase) Modify(qris *entities.QRIS, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+	if m.ModifyFunc != nil {
+		return m.ModifyFunc(qris, paymentFeeCategoryValue, paymentFeeValue)
+	}
+	return nil
+}
+
+type mockAdditionalInformationUsecase struct {
+	ParseFunc    func(content string) (*entities.AdditionalInformationDetail, error)
+	ToStringFunc func(additionalInformationDetail *entities.AdditionalInformationDetail) string
+}
+
+func (m *mockAdditionalInformationUsecase) Parse(content string) (*entities.AdditionalInformationDetail, error) {
+	if m.ParseFunc != nil {
+		return m.ParseFunc(content)
+	}
+	return nil, nil
+}
+
+func (m *mockAdditionalInformationUsecase) ToString(additionalInformationDetail *entities.AdditionalInformationDetail) string {
+	if m.ToStringFunc != nil {
+		return m.ToStringFunc(additionalInformationDetail)
+	}
+	return ""
 }
 
 type mockCRC16CCITTUsecase struct {

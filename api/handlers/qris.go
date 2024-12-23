@@ -22,13 +22,18 @@ type ParseRequest struct {
 	QRString string `json:"qr_string"`
 }
 
-type ConverterRequest struct {
+type IsValidRequest struct {
+	QRString string `json:"qr_string"`
+}
+
+type ConvertRequest struct {
 	QRString           string `json:"qr_string"`
 	MerchantCity       string `json:"merchant_city"`
 	MerchantPostalCode string `json:"merchant_postal_code"`
 	PaymentAmount      uint32 `json:"payment_amount"`
 	PaymentFeeCategory string `json:"payment_fee_category"`
 	PaymentFee         uint32 `json:"payment_fee"`
+	TerminalLabel      string `json:"terminal_label"`
 }
 
 func NewQRIS(qrisController controllers.QRISInterface) QRISInterface {
@@ -70,7 +75,7 @@ func (h *QRIS) Parse(c *gin.Context) {
 }
 
 func (h *QRIS) Convert(c *gin.Context) {
-	var req ConverterRequest
+	var req ConvertRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -82,7 +87,7 @@ func (h *QRIS) Convert(c *gin.Context) {
 		return
 	}
 
-	qrString, qrCode, err, errs := h.qrisController.Convert(req.QRString, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee)
+	qrString, qrCode, err, errs := h.qrisController.Convert(req.QRString, req.MerchantCity, req.MerchantPostalCode, req.PaymentAmount, req.PaymentFeeCategory, req.PaymentFee, req.TerminalLabel)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Success: false,
@@ -108,7 +113,7 @@ func (h *QRIS) Convert(c *gin.Context) {
 }
 
 func (h *QRIS) IsValid(c *gin.Context) {
-	var req ParseRequest
+	var req IsValidRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Response{

@@ -14,53 +14,68 @@ var (
 	expectedTypeAssertionErrorMessage = "Expected type assertion error, but got = %v"
 	expectedReturnNonNil              = "Expected %v to return a non-nil %v"
 
-	testVersionTag                       = "00"
-	testCategoryTag                      = "01"
-	testAcquirerTag                      = "26"
-	testAcquirerBankTransferTag          = "40"
-	testSwitchingTag                     = "51"
-	testMerchantCategoryCodeTag          = "52"
-	testCurrencyCodeTag                  = "53"
-	testPaymentAmountTag                 = "54"
-	testPaymentFeeCategoryTag            = "55"
-	testPaymentFeeFixedTag               = "56"
-	testPaymentFeePercentTag             = "57"
-	testCountryCodeTag                   = "58"
-	testMerchantNameTag                  = "59"
-	testMerchantCityTag                  = "60"
-	testMerchantPostalCodeTag            = "61"
-	testAdditionalInformationTag         = "62"
-	testCRCCodeTag                       = "63"
-	testAcquirerDetailSiteTag            = "00"
-	testAcquirerDetailMPANTag            = "01"
-	testAcquirerDetailTerminalIDTag      = "02"
-	testAcquirerDetailCategoryTag        = "03"
-	testSwitchingDetailSiteTag           = "00"
-	testSwitchingDetailNMIDTag           = "02"
-	testSwitchingDetailCategoryTag       = "03"
-	testCategoryStaticContent            = "11"
-	testCategoryDynamicContent           = "12"
-	testPaymentFeeCategoryFixedContent   = "02"
-	testPaymentFeeCategoryPercentContent = "03"
+	testVersionTag                                               = "00"
+	testCategoryTag                                              = "01"
+	testAcquirerTag                                              = "26"
+	testAcquirerBankTransferTag                                  = "40"
+	testSwitchingTag                                             = "51"
+	testMerchantCategoryCodeTag                                  = "52"
+	testCurrencyCodeTag                                          = "53"
+	testPaymentAmountTag                                         = "54"
+	testPaymentFeeCategoryTag                                    = "55"
+	testPaymentFeeFixedTag                                       = "56"
+	testPaymentFeePercentTag                                     = "57"
+	testCountryCodeTag                                           = "58"
+	testMerchantNameTag                                          = "59"
+	testMerchantCityTag                                          = "60"
+	testMerchantPostalCodeTag                                    = "61"
+	testAdditionalInformationTag                                 = "62"
+	testCRCCodeTag                                               = "63"
+	testAcquirerDetailSiteTag                                    = "00"
+	testAcquirerDetailMPANTag                                    = "01"
+	testAcquirerDetailTerminalIDTag                              = "02"
+	testAcquirerDetailCategoryTag                                = "03"
+	testSwitchingDetailSiteTag                                   = "00"
+	testSwitchingDetailNMIDTag                                   = "02"
+	testSwitchingDetailCategoryTag                               = "03"
+	testCategoryStaticContent                                    = "11"
+	testCategoryDynamicContent                                   = "12"
+	testPaymentFeeCategoryFixedContent                           = "02"
+	testPaymentFeeCategoryPercentContent                         = "03"
+	testAdditionalInformationDetailBillNumber                    = "01"
+	testAdditionalInformationDetailMobileNumber                  = "02"
+	testAdditionalInformationDetailStoreLabel                    = "03"
+	testAdditionalInformationDetailLoyaltyNumber                 = "04"
+	testAdditionalInformationDetailReferenceLabel                = "05"
+	testAdditionalInformationDetailCustomerLabel                 = "06"
+	testAdditionalInformationDetailTerminalLabel                 = "07"
+	testAdditionalInformationDetailPurposeOfTransaction          = "08"
+	testAdditionalInformationDetailAdditionalConsumerDataRequest = "09"
+	testAdditionalInformationDetailMerchantTaxID                 = "10"
+	testAdditionalInformationDetailMerchantChannel               = "11"
+	testAdditionalInformationDetailRFUStart                      = "12"
+	testAdditionalInformationDetailRFUEnd                        = "49"
+	testAdditionalInformationDetailPaymentSystemSpecificStart    = "50"
+	testAdditionalInformationDetailPaymentSystemSpecificEnd      = "99"
 
 	testQRISTags = usecases.QRISTags{
-		VersionTag:               testVersionTag,
-		CategoryTag:              testCategoryTag,
-		AcquirerTag:              testAcquirerTag,
-		AcquirerBankTransferTag:  testAcquirerBankTransferTag,
-		SwitchingTag:             testSwitchingTag,
-		MerchantCategoryCodeTag:  testMerchantCategoryCodeTag,
-		CurrencyCodeTag:          testCurrencyCodeTag,
-		PaymentAmountTag:         testPaymentAmountTag,
-		PaymentFeeCategoryTag:    testPaymentFeeCategoryTag,
-		PaymentFeeFixedTag:       testPaymentFeeFixedTag,
-		PaymentFeePercentTag:     testPaymentFeePercentTag,
-		CountryCodeTag:           testCountryCodeTag,
-		MerchantNameTag:          testMerchantNameTag,
-		MerchantCityTag:          testMerchantCityTag,
-		MerchantPostalCodeTag:    testMerchantPostalCodeTag,
-		AdditionalInformationTag: testAdditionalInformationTag,
-		CRCCodeTag:               testCRCCodeTag,
+		Version:               testVersionTag,
+		Category:              testCategoryTag,
+		Acquirer:              testAcquirerTag,
+		AcquirerBankTransfer:  testAcquirerBankTransferTag,
+		Switching:             testSwitchingTag,
+		MerchantCategoryCode:  testMerchantCategoryCodeTag,
+		CurrencyCode:          testCurrencyCodeTag,
+		PaymentAmount:         testPaymentAmountTag,
+		PaymentFeeCategory:    testPaymentFeeCategoryTag,
+		PaymentFeeFixed:       testPaymentFeeFixedTag,
+		PaymentFeePercent:     testPaymentFeePercentTag,
+		CountryCode:           testCountryCodeTag,
+		MerchantName:          testMerchantNameTag,
+		MerchantCity:          testMerchantCityTag,
+		MerchantPostalCode:    testMerchantPostalCodeTag,
+		AdditionalInformation: testAdditionalInformationTag,
+		CRCCode:               testCRCCodeTag,
 	}
 	testQRISCategoryContents = usecases.QRISCategoryContents{
 		Static:  testCategoryStaticContent,
@@ -109,6 +124,74 @@ var (
 			Tag:     testSwitchingDetailCategoryTag,
 			Content: "UMI",
 			Data:    testSwitchingDetailCategoryTag + "03UMI",
+		},
+	}
+
+	testAdditionalInformationDetail = entities.AdditionalInformationDetail{
+		BillNumber: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		MobileNumber: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		StoreLabel: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		LoyaltyNumber: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		ReferenceLabel: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		CustomerLabel: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		TerminalLabel: entities.Data{
+			Tag:     testAdditionalInformationDetailTerminalLabel,
+			Content: "A01",
+			Data:    testAdditionalInformationDetailTerminalLabel + "03A01",
+		},
+		PurposeOfTransaction: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		AdditionalConsumerDataRequest: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		MerchantTaxID: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		MerchantChannel: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		RFU: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
+		},
+		PaymentSystemSpecific: entities.Data{
+			Tag:     "",
+			Content: "",
+			Data:    "",
 		},
 	}
 
@@ -180,10 +263,12 @@ var (
 			Content: "55000",
 			Data:    testMerchantPostalCodeTag + "0555000",
 		},
-		AdditionalInformation: entities.Data{
+
+		AdditionalInformation: entities.AdditionalInformation{
 			Tag:     testAdditionalInformationTag,
 			Content: "0703A01",
 			Data:    testAdditionalInformationTag + "070703A01",
+			Detail:  testAdditionalInformationDetail,
 		},
 		CRCCode: entities.Data{
 			Tag:     testCRCCodeTag,
@@ -204,11 +289,12 @@ var (
 		testQRISEntity.AdditionalInformation.Data +
 		testQRISEntity.CRCCode.Data
 
-	testPaymentAmountValue        = 1337
-	testPaymentFeeValue           = 666
-	testMerchantCityContent       = "New Merchant City"
-	testMerchantPostalCodeContent = "55181"
-	testQRISEntityModified        = entities.QRIS{
+	testPaymentAmountValue                        = 1337
+	testPaymentFeeValue                           = 666
+	testMerchantCityContent                       = "Merchant City"
+	testMerchantPostalCodeContent                 = "17155"
+	testAdditionalInformationTerminalLabelContent = "Awesome Terminal Label"
+	testQRISEntityModified                        = entities.QRIS{
 		Version: testQRISEntity.Version,
 		Category: entities.Data{
 			Tag:     testCategoryTag,
@@ -370,10 +456,77 @@ var (
 			Content: testQRISEntity.MerchantPostalCode.Content,
 			Data:    testQRISEntity.MerchantPostalCode.Data,
 		},
-		AdditionalInformation: models.Data{
+		AdditionalInformation: models.AdditionalInformation{
 			Tag:     testQRISEntity.AdditionalInformation.Tag,
 			Content: testQRISEntity.AdditionalInformation.Content,
 			Data:    testQRISEntity.AdditionalInformation.Data,
+			Detail: models.AdditionalInformationDetail{
+				BillNumber: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.BillNumber.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.BillNumber.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.BillNumber.Data,
+				},
+				MobileNumber: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.MobileNumber.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.MobileNumber.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.MobileNumber.Data,
+				},
+				StoreLabel: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.StoreLabel.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.StoreLabel.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.StoreLabel.Data,
+				},
+				LoyaltyNumber: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.LoyaltyNumber.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.LoyaltyNumber.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.LoyaltyNumber.Data,
+				},
+				ReferenceLabel: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.ReferenceLabel.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.ReferenceLabel.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.ReferenceLabel.Data,
+				},
+				CustomerLabel: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.CustomerLabel.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.CustomerLabel.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.CustomerLabel.Data,
+				},
+				TerminalLabel: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.TerminalLabel.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.TerminalLabel.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.TerminalLabel.Data,
+				},
+				PurposeOfTransaction: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.PurposeOfTransaction.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.PurposeOfTransaction.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.PurposeOfTransaction.Data,
+				},
+				AdditionalConsumerDataRequest: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Data,
+				},
+				MerchantTaxID: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.MerchantTaxID.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.MerchantTaxID.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.MerchantTaxID.Data,
+				},
+				MerchantChannel: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.MerchantChannel.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.MerchantChannel.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.MerchantChannel.Data,
+				},
+				RFU: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.RFU.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.RFU.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.RFU.Data,
+				},
+				PaymentSystemSpecific: models.Data{
+					Tag:     testQRISEntity.AdditionalInformation.Detail.PaymentSystemSpecific.Tag,
+					Content: testQRISEntity.AdditionalInformation.Detail.PaymentSystemSpecific.Content,
+					Data:    testQRISEntity.AdditionalInformation.Detail.PaymentSystemSpecific.Data,
+				},
+			},
 		},
 		CRCCode: models.Data{
 			Tag:     testQRISEntity.CRCCode.Tag,
@@ -486,10 +639,77 @@ var (
 			Content: testQRISEntityModified.MerchantPostalCode.Content,
 			Data:    testQRISEntityModified.MerchantPostalCode.Data,
 		},
-		AdditionalInformation: models.Data{
+		AdditionalInformation: models.AdditionalInformation{
 			Tag:     testQRISEntityModified.AdditionalInformation.Tag,
 			Content: testQRISEntityModified.AdditionalInformation.Content,
 			Data:    testQRISEntityModified.AdditionalInformation.Data,
+			Detail: models.AdditionalInformationDetail{
+				BillNumber: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.BillNumber.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.BillNumber.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.BillNumber.Data,
+				},
+				MobileNumber: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.MobileNumber.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.MobileNumber.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.MobileNumber.Data,
+				},
+				StoreLabel: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.StoreLabel.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.StoreLabel.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.StoreLabel.Data,
+				},
+				LoyaltyNumber: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.LoyaltyNumber.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.LoyaltyNumber.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.LoyaltyNumber.Data,
+				},
+				ReferenceLabel: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.ReferenceLabel.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.ReferenceLabel.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.ReferenceLabel.Data,
+				},
+				CustomerLabel: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.CustomerLabel.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.CustomerLabel.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.CustomerLabel.Data,
+				},
+				TerminalLabel: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.TerminalLabel.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.TerminalLabel.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.TerminalLabel.Data,
+				},
+				PurposeOfTransaction: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.PurposeOfTransaction.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.PurposeOfTransaction.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.PurposeOfTransaction.Data,
+				},
+				AdditionalConsumerDataRequest: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.AdditionalConsumerDataRequest.Data,
+				},
+				MerchantTaxID: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.MerchantTaxID.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.MerchantTaxID.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.MerchantTaxID.Data,
+				},
+				MerchantChannel: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.MerchantChannel.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.MerchantChannel.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.MerchantChannel.Data,
+				},
+				RFU: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.RFU.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.RFU.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.RFU.Data,
+				},
+				PaymentSystemSpecific: models.Data{
+					Tag:     testQRISEntityModified.AdditionalInformation.Detail.PaymentSystemSpecific.Tag,
+					Content: testQRISEntityModified.AdditionalInformation.Detail.PaymentSystemSpecific.Content,
+					Data:    testQRISEntityModified.AdditionalInformation.Detail.PaymentSystemSpecific.Data,
+				},
+			},
 		},
 		CRCCode: models.Data{
 			Tag:     testQRISEntityModified.CRCCode.Tag,
@@ -528,7 +748,7 @@ func (m *mockCRC16CCITTUsecase) GenerateCode(code string) string {
 type mockQRISUsecase struct {
 	ParseFunc    func(qrString string) (*entities.QRIS, error, *[]string)
 	IsValidFunc  func(qris *entities.QRIS) bool
-	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS
 	ToStringFunc func(qris *entities.QRIS) string
 }
 
@@ -546,9 +766,9 @@ func (m *mockQRISUsecase) IsValid(qris *entities.QRIS) bool {
 	return false
 }
 
-func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 	if m.ModifyFunc != nil {
-		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue, terminalLabelValue)
 	}
 	return nil
 }

@@ -18,37 +18,45 @@ func TestNewSwitching(t *testing.T) {
 			name: "Success: No Field",
 			fields: Switching{
 				dataUsecase: &Data{},
-				siteTag:     "",
-				nmidTag:     "",
-				categoryTag: "",
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 			want: &Switching{
 				dataUsecase: &Data{},
-				siteTag:     "",
-				nmidTag:     "",
-				categoryTag: "",
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 		},
 		{
 			name: "Success: With Field",
 			fields: Switching{
 				dataUsecase: &Data{},
-				siteTag:     testSwitchingDetailSiteTag,
-				nmidTag:     testSwitchingDetailNMIDTag,
-				categoryTag: testSwitchingDetailCategoryTag,
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 			want: &Switching{
 				dataUsecase: &Data{},
-				siteTag:     testSwitchingDetailSiteTag,
-				nmidTag:     testSwitchingDetailNMIDTag,
-				categoryTag: testSwitchingDetailCategoryTag,
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			uc := NewSwitching(test.fields.dataUsecase, test.fields.siteTag, test.fields.nmidTag, test.fields.categoryTag)
+			uc := NewSwitching(test.fields.dataUsecase, test.fields.switchingDetailTags)
 
 			if uc == nil {
 				t.Errorf(expectedReturnNonNil, "NewSwitching", "SwitchingInterface")
@@ -86,9 +94,11 @@ func TestSwitchingParse(t *testing.T) {
 						return nil, fmt.Errorf("invalid format code")
 					},
 				},
-				siteTag:     testSwitchingDetailSiteTag,
-				nmidTag:     testSwitchingDetailNMIDTag,
-				categoryTag: testSwitchingDetailCategoryTag,
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 			args: args{
 				content: testQRIS.Switching.Content,
@@ -113,9 +123,11 @@ func TestSwitchingParse(t *testing.T) {
 						}
 					},
 				},
-				siteTag:     testSwitchingDetailSiteTag,
-				nmidTag:     testSwitchingDetailNMIDTag,
-				categoryTag: testSwitchingDetailCategoryTag,
+				switchingDetailTags: &SwitchingDetailTags{
+					Site:     testSwitchingDetailSiteTag,
+					NMID:     testSwitchingDetailNMIDTag,
+					Category: testSwitchingDetailCategoryTag,
+				},
 			},
 			args: args{
 				content: testQRIS.Switching.Content,
@@ -128,10 +140,8 @@ func TestSwitchingParse(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			uc := &Switching{
-				dataUsecase: test.fields.dataUsecase,
-				siteTag:     test.fields.siteTag,
-				nmidTag:     test.fields.nmidTag,
-				categoryTag: test.fields.categoryTag,
+				dataUsecase:         test.fields.dataUsecase,
+				switchingDetailTags: test.fields.switchingDetailTags,
 			}
 
 			got, err := uc.Parse(test.args.content)

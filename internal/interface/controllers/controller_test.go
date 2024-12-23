@@ -21,7 +21,7 @@ var (
 type mockQRISUsecase struct {
 	ParseFunc    func(qrString string) (*entities.QRIS, error, *[]string)
 	IsValidFunc  func(qris *entities.QRIS) bool
-	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS
+	ModifyFunc   func(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS
 	ToStringFunc func(qris *entities.QRIS) string
 }
 
@@ -39,9 +39,9 @@ func (m *mockQRISUsecase) IsValid(qris *entities.QRIS) bool {
 	return false
 }
 
-func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) *entities.QRIS {
+func (m *mockQRISUsecase) Modify(qris *entities.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) *entities.QRIS {
 	if m.ModifyFunc != nil {
-		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue)
+		return m.ModifyFunc(qris, merchantCityValue, merchantPostalCodeValue, paymentAmountValue, paymentFeeCategoryValue, paymentFeeValue, terminalLabelValue)
 	}
 	return nil
 }

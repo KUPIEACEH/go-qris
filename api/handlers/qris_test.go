@@ -171,7 +171,7 @@ func TestQRISConvert(t *testing.T) {
 			name: "Error: h.qrisController.Convert()",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
+					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) (string, string, error, *[]string) {
 						return "", "", fmt.Errorf("invalid QR string"), nil
 					},
 				},
@@ -188,7 +188,7 @@ func TestQRISConvert(t *testing.T) {
 			name: "Success",
 			fields: QRIS{
 				qrisController: &mockQRISController{
-					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32) (string, string, error, *[]string) {
+					ConvertFunc: func(qrisString string, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue uint32, paymentFeeCategoryValue string, paymentFeeValue uint32, terminalLabelValue string) (string, string, error, *[]string) {
 						return "QR Dynamic String", "QR Dynamic Code", nil, nil
 					},
 				},
