@@ -393,7 +393,7 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
         "payment_amount": 1337, // mandatory
         "payment_fee_category": "FIXED", // optional, value: FIXED or PERCENT
         "payment_fee": 666, // optional, based on payment fee category
-        "terminalLabel": "Made with love by Alvriyanto Azis" // optional, it works if terminal label exists in qr string
+        "terminal_label": "Made with love by Alvriyanto Azis" // optional, it works if terminal label exists in qr string
       }
       ```
 
