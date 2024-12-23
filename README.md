@@ -63,7 +63,7 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 2.  Run the application using Docker:
 
     ```bash
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o go-qris ./cmd
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o go-qris -trimpath ./cmd/main.go
     docker build -f ./deployments/Dockerfile -t go-qris .
     docker run --name go-qris -e APP_ENV=development -e QR_CODE_SIZE=256 -p 8080:1337 go-qris
     ```
@@ -83,14 +83,15 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 
     func main() {
         qrisString := "000201010211y0ur4w3soMEQr15STriN6"
-        merchantCity := "Kota Yogyakarta" // optional
-        merchantPostalCode := "55000"     // optional
-        paymentAmount := 1337
-        paymentFeeCategory := "FIXED" // optional, value: FIXED or PERCENT
-        paymentFee := 666             // optional based on paymentFeeCategory value
+        merchantCity := "Kota Yogyakarta"                    // optional
+        merchantPostalCode := "55000"                        // optional
+        paymentAmount := 1337                                // mandatory
+        paymentFeeCategory := "FIXED"                        // optional, value: FIXED or PERCENT
+        paymentFee := 666                                    // optional, based on paymentFeeCategory value
+        terminalLabel := "Made with love by Alvriyanto Azis" // optional, it works if terminal label exists in qrisString
 
         qrisService := services.NewQRIS()
-        qrisString, err, errs := qrisService.Convert(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+        qrisString, err, errs := qrisService.Convert(qrisString, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee, terminalLabel)
         if err != nil {
             fmt.Println("[ FAILURE ]", err)
             if errs != nil {
@@ -124,10 +125,10 @@ Go-QRIS is a Go-based project designed to convert QRIS code into dynamic ones. Q
 
     - **Modify QRIS**
 
-      `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int) *models.QRIS`
+      `Modify(qris *models.QRIS, merchantCityValue string, merchantPostalCodeValue string, paymentAmountValue int, paymentFeeCategoryValue string, paymentFeeValue int, terminalLabelValue string) (*models.QRIS, error, *[]string)`
 
       ```go
-      qris = qrisService.Modify(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee)
+      qris, err, errs = qrisService.Modify(qris, merchantCity, merchantPostalCode, paymentAmount, paymentFeeCategory, paymentFee, terminalLabel)
       ```
 
     - **Convert QRIS to String**
@@ -285,7 +286,74 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
           "additional_information": {
             "tag": "62",
             "content": "0703A01",
-            "data": "62070703A01"
+            "data": "62070703A01",
+            "detail": {
+              "bill_number": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "mobile_number": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "store_label": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "loyalty_number": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "reference_label": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "customer_label": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "terminal_label": {
+                "tag": "07",
+                "content": "A01",
+                "data": "0703A01"
+              },
+              "purpose_of_transaction": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "additional_consumer_data_request": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "merchant_tax_id": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "merchant_channel": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "rfu": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              },
+              "payment_system_specific": {
+                "tag": "",
+                "content": "",
+                "data": ""
+              }
+            }
           },
           "crc_code": {
             "tag": "63",
@@ -322,9 +390,10 @@ To learn more about the available endpoints, you can refer to [Postman Documenta
         "qr_string": "000201010211y0ur4w3soMEQr15STriN6",
         "merchant_city": "Kota Yogyakarta", // optional
         "merchant_postal_code": "55000", // optional
-        "payment_amount": 1337,
+        "payment_amount": 1337, // mandatory
         "payment_fee_category": "FIXED", // optional, value: FIXED or PERCENT
-        "payment_fee": 666 // optional based on payment fee category
+        "payment_fee": 666, // optional, based on payment fee category
+        "terminalLabel": "Made with love by Alvriyanto Azis" // optional, it works if terminal label exists in qr string
       }
       ```
 
